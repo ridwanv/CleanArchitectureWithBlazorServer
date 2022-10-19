@@ -1,0 +1,34 @@
+@using BlazorShared.Models
+
+@*@switch (Result)
+{
+    case Result.NoInformationAvailable:  <MudIcon Icon="@Icons.Filled.WarningAmber" Color="Color.Warning" /> break;
+    case Result.No: <MudIcon Icon="@Icons.Filled.Stop" Color="Color.Error" /> break;
+    case Result.Yes: <MudIcon Icon="@Icons.Filled.PlayCircle" Color="Color.Success" />break;
+    case Result.FailedPreValidation: <MudIcon Icon="@Icons.Custom.Uncategorized.Radioactive" Color="Color.Default" /> break;
+    default: <MudIcon Icon="@Icons.Filled.Stop" Color="Color.Error" /> break;
+}*@
+
+@if(Result == Result.Yes)
+{
+    <MudIcon Icon="@Icons.Filled.PlayCircle" Color="Color.Success" />
+}
+else if(Result == Result.No)
+{
+    <MudIcon Icon="@Icons.Filled.Stop" Color="Color.Error" />
+}
+else  if(Result == Result.NoInformationAvailable)
+{
+    <MudIcon Icon="@Icons.Filled.WarningAmber" Color="Color.Warning" />
+}
+else  if(Result == Result.NoInformationAvailable)
+{
+   <MudIcon Icon="@Icons.Custom.Uncategorized.Radioactive" Color="Color.Default" />
+}
+
+
+
+@code {
+    [Parameter]
+    public Result Result{get;set;}
+}

@@ -1,0 +1,214 @@
+@page "/suppliers/index"
+
+@using BlazorShared.Models
+@using FluentEmail.Core
+@using FluentEmail.Razor
+@using HashidsNet
+@using System.Globalization
+@inject IBankService _bankService
+
+
+
+@inject IJSRuntime JS
+@inject IStringLocalizer<Index> L
+@attribute [Authorize(Policy = Permissions.Visitors.View)]
+<PageTitle>@Title</PageTitle>
+<style>
+    .mud-table-toolbar {
+        height: 84px !important;
+    }
+</style>
+<MudTable ServerData="@(new Func<TableState, Task<TableData<BankVerification>>>(ServerReload))"
+                  FixedHeader="true"
+                  FixedFooter="true"
+                  Virtualize="true"
+                  Height="calc(100vh - 315px)"
+                  Loading="@_loading"
+                  SortLabel="@L["Sort By"]"
+                  MultiSelection="true" @bind-SelectedItems="_selectedItems"
+                  Hover="true" Dense="true" @ref="_table">
+
+                <ToolBarContent>
+                <div class="justify-start pt-3">
+                    <MudText Typo="Typo.h6">@L["Visitors"]</MudText>
+                    <MudHidden Breakpoint="Breakpoint.SmAndDown">
+                        <MudButton DisableElevation Variant="Variant.Outlined"
+                                   Size="Size.Small"
+                                   Disabled="@_loading"
+                                   OnClick="@(()=> OnRefresh())"
+                                   StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Primary"
+                                   Style="margin-right: 4px; margin-bottom:4px">@L["Refresh"]</MudButton>
+                        @if (_canRequest)
+                        {
+                            
+
+                            <MudButton DisableElevation Variant="Variant.Outlined" Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.PostAdd"
+                                   Disabled="_loading"
+                                   Size="Size.Small"
+                                   OnClick="OnRequest"
+                                   Style="margin-right: 4px; margin-bottom:4px"
+                                   IconColor="Color.Surface">@L["New Person Identification"]</MudButton>
+                        }
+
+
+
+                    </MudHidden>
+                </div>
+                <MudSpacer />
+                <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Value="@_searchString" Placeholder="Search" Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            </ToolBarContent>
+ 
+            <HeaderContent>
+                <MudTh>@L["Action"]</MudTh>
+                <MudTh>@L["Identity Number"]</MudTh>
+                <MudTh>@L["Initials"]</MudTh>
+                <MudTh>@L["Last Name"]</MudTh>
+                <MudTh>@L["Account Number"]</MudTh>
+                <MudTh>@L["Verification Result"]</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="@L["Actions"]">
+
+                    <MudIconButton Icon="fa-solid fa-eye" Color="Color.Error" OnClick="@(()=>OnView(context))"></MudIconButton>
+                  
+                </MudTd>
+                <MudTd DataLabel="@L["Identity Number"]">
+                    <MudText>@context.IdentityNumber</MudText>
+                </MudTd>
+                <MudTd DataLabel="@L["Initials"]">
+                    <MudText>@context.Initials</MudText>      
+                </MudTd>
+                <MudTd DataLabel="@L["Last Name"]">
+                    <MudText>@context.LastName</MudText>          
+                </MudTd>
+                <MudTd DataLabel="@L["Account Number"]">
+                    <MudText>@context.BankAccount.AccountNumber</MudText>
+                </MudTd>
+                 <MudTd DataLabel="@L["Account Number"]">
+                    <MudText>Passed</MudText>
+                </MudTd>
+            </RowTemplate>
+            <NoRecordsContent>
+                <MudText>@L["No matching records found"]</MudText>
+            </NoRecordsContent>
+            <LoadingContent>
+                <MudText>@L["Loading..."].</MudText>
+            </LoadingContent>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+@code {
+    public string? Title { get; private set; }
+    private HashSet<BankVerification> _selectedItems = new HashSet<BankVerification>();
+    private MudTable<BankVerification> _table = default!;
+    public List<BankVerification> BankVerifications { get; set; }
+    List<BankVerification> bankVerifications = new List<BankVerification>() { new BankVerification() { Initials = "R", LastName = "Vadwalla", IdentityNumber = "85013254", BankAccount = new BlazorShared.Models.BankAccount() {AccountNumber="3435454" } } };
+
+
+    private int _totalItems;
+    private string _searchString = string.Empty;
+    private bool _loading;
+    private bool _uploading;
+    private bool _downloading;
+
+    [Inject]
+    private ISender _mediator { get; set; } = default!;
+    [Inject]
+    private Hashids hashids { get; set; } = default!;
+    [Inject]
+    private NavigationManager _navigationManager { get; set; } = default!;
+    [Inject]
+    private IFluentEmail _fluentEmail { get; set; }
+
+    [CascadingParameter]
+    protected Task<AuthenticationState> AuthState { get; set; } = default!;
+
+    private VisitorsWithPaginationQuery query { get; set; } = new();
+
+    private bool _canSearch;
+    private bool _canCreate;
+    private bool _canEdit;
+    private bool _canDelete;
+    private bool _canApprove;
+    private bool _canImport;
+    private bool _canExport;
+    private bool _canRequest;
+    protected override async Task OnInitializedAsync()
+    {
+        Title = L["Visitors"];
+        var state = await AuthState;
+        _canCreate = (await AuthService.AuthorizeAsync(state.User, Permissions.Visitors.Create)).Succeeded;
+        _canSearch = (await AuthService.AuthorizeAsync(state.User, Permissions.Visitors.Search)).Succeeded;
+        _canEdit = (await AuthService.AuthorizeAsync(state.User, Permissions.Visitors.Edit)).Succeeded;
+        _canDelete = (await AuthService.AuthorizeAsync(state.User, Permissions.Visitors.Delete)).Succeeded;
+        _canApprove = (await AuthService.AuthorizeAsync(state.User, Permissions.Visitors.Approve)).Succeeded;
+        _canRequest = (await AuthService.AuthorizeAsync(state.User, Permissions.Visitors.VisitorRequest)).Succeeded;
+        _canImport = false;
+        _canExport = false;
+
+    }
+    private async Task<TableData<BankVerification>> ServerReload(TableState state)
+    {
+
+        var bankVerifications = await _bankService.Search(new BankVerificationSearch());
+        return new TableData<BankVerification>() {TotalItems = 1, Items = bankVerifications};
+        //var result = new TableData<PersonIdentification>() { Items = personIdentifications, TotalItems = 10 };
+        //return Task.FromResult<TableData<PersonIdentification>>(result);
+
+
+    }
+
+    private void OnFilterChanged(string s)
+    {
+        InvokeAsync(async () =>
+        {
+            await _table.ReloadServerData();
+        });
+    }
+    private async Task OnRequest()
+    {
+        var model = new BankVerificationRequest();
+        var parameters = new DialogParameters { ["model"] = model };
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+        var dialog = DialogService.Show<_BankVerificationFormDialog>(L["Create a new request"], parameters, options);
+        var result = await dialog.Result;
+
+
+        if (!result.Cancelled)
+        {
+            var bankVerification = (BankVerificationRequest)result.Data;
+            Snackbar.Add($" Created {bankVerification.Id}", MudBlazor.Severity.Info);
+            _navigationManager.NavigateTo($"/bankverification/{bankVerification.BankAccount.AccountNumber}");
+        }
+        else
+        {
+            Snackbar.Add($"{L["Failed"]}", MudBlazor.Severity.Info);
+        }
+
+    }
+
+    private async Task OnView(BankVerification personIdentification)
+    {
+        if (personIdentification != null)
+        {
+            _navigationManager.NavigateTo("/person/detail/?id=5");
+        }
+    }
+
+    private async Task OnSearch(string text)
+    {
+        _selectedItems = new();
+        _searchString = text;
+        await _table.ReloadServerData();
+    }
+    private async Task OnRefresh()
+    {
+        _selectedItems = new();
+        _searchString = string.Empty;
+        await _table.ReloadServerData();
+    }
+
+    }

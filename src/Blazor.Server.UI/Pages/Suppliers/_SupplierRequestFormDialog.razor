@@ -1,0 +1,181 @@
+@using BlazorShared.Models
+@using BlazorShared.Services
+@inherits MudComponentBase
+@inject IStringLocalizer<_SupplierRequestFormDialog> L
+@inject ISupplierService _supplierService
+
+<MudDialog>
+    <DialogContent>
+
+        <MudTabs Elevation="1" Rounded="true" PanelClass="pa-6" @ref=tabs @bind-ActivePanelIndex="@ActiveStepIx">
+                     <MudForm Model="@model" @ref="@form">
+    <MudTabPanel Text="Company Informattion" ToolTip="ToolTip One">
+
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudTextField For="@(() => model.Name)" @bind-Value="model.Name" Label="@L["Name"]" Variant="Variant.Text"></MudTextField>
+                    <MudTextField For="@(() => model.TaxReferenceNumber)" @bind-Value="model.TaxReferenceNumber" Label="@L["Tax Reference Number"]" Variant="Variant.Text"></MudTextField>
+                    <MudTextField For="@(() => model.PhoneNumber)" @bind-Value="model.PhoneNumber" Label="@L["PhoneNumber"]" Variant="Variant.Text"></MudTextField>
+                    <Address AddressModel="@model.PhysicalAddress"></Address>
+              
+                </MudItem>
+            </MudGrid>
+
+    </MudTabPanel>
+    <MudTabPanel Text="Other Contact Information" ToolTip="ToolTip Two">
+        <MudTable Items="model.Contacts" Dense="true" Hover="true"
+          @bind-SelectedItem="SelectedContact" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
+          OnCommitEditClick="@(() => Snackbar.Add("Commit Edit Handler Invoked"))"
+           IsEditRowSwitchingBlocked="true">
+
+    <HeaderContent>
+        <MudTh>Name</MudTh>
+        <MudTh>Designation</MudTh>
+        <MudTh>Phone Number</MudTh>
+        <MudTh>Email Address</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Full Name">@context.FullName</MudTd>
+        <MudTd DataLabel="Position">@context.Position</MudTd>
+        <MudTd DataLabel="Phone Number">@context.PhoneNumber</MudTd>
+        <MudTd DataLabel="Email Address">@context.EmailAddress</MudTd>
+    </RowTemplate>
+    <RowEditingTemplate>
+        <MudTd DataLabel="Full Name">
+            <MudTextField @bind-Value="@context.FullName" Required />
+        </MudTd>
+        <MudTd DataLabel="Position">
+            <MudTextField @bind-Value="@context.Position" Required />
+        </MudTd>
+        <MudTd DataLabel="Phone Number">
+            <MudTextField @bind-Value="@context.PhoneNumber" Required />
+        </MudTd>
+        <MudTd DataLabel="Email Address">
+            <MudTextField @bind-Value="@context.EmailAddress" Required />
+        </MudTd>
+    </RowEditingTemplate>
+</MudTable>
+<MudButton ButtonType="ButtonType.Button" @onclick="AddContact"> Add Contact</MudButton>
+    </MudTabPanel>
+    <MudTabPanel Text="Comments and Attachments" ToolTip="ToolTip Three">
+        <MudTextField T="string" Label="Comments/Notes" Variant="Variant.Text" Text="@model.Comments" Lines="5" />
+        <MudButton HtmlTag="label"
+           Variant="Variant.Filled"
+           Color="Color.Primary"
+           StartIcon="@Icons.Filled.CloudUpload"
+           for="fileInput">
+    Upload Files
+</MudButton>
+        <InputFile id="fileInput" OnChange="UploadFiles" hidden multiple />
+        @if (files != null)
+            {
+                <MudText Typo="@Typo.h6">@files.Count() File@(files.Count() == 1 ? "" : "s"):</MudText>
+                <MudList>
+                @foreach (var file in files)
+                {
+                 <MudListItem Icon="@Icons.Filled.AttachFile" @key="@file">
+                     @file.Name <code>@file.Size bytes</code>
+                 </MudListItem>
+                }
+                </MudList>
+            }
+    </MudTabPanel>
+    </MudForm>
+</MudTabs>
+
+    </DialogContent>
+    <DialogActions>
+    @if(!IsFirstStep)
+            {
+                 <MudButton Variant="@Variant.Filled" Color="Color.Primary" OnClick="GoBack" >Previous</MudButton>
+            }
+    @if(!IsLastStep) {
+            <MudButton Variant="@Variant.Filled" Color="Color.Primary" OnClick="GoNext" Class="mx-2">Next</MudButton>
+        }
+        else
+        {
+            <MudButton Variant="@Variant.Filled" Color="Color.Primary" OnClick="Submit" Class="mx-2">Finished</MudButton>
+        }
+         <MudButton Variant="Variant.Filled" DisableElevation="true" OnClick="Cancel">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    public Supplier Supplier { get; set; } = new();
+
+    MudForm form = default!;
+
+    private IEnumerable<BlazorShared.Models.Contact> Contacts = new List<BlazorShared.Models.Contact>();
+    public BlazorShared.Models.Contact SelectedContact { get; set; } = new();
+
+    [Parameter]
+    public SupplierCreateRequest model { get; set; } = default!;
+
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; } = default!;
+
+    IList<IBrowserFile> files = new List<IBrowserFile>();
+
+    private void UploadFiles(InputFileChangeEventArgs e)
+    {
+        foreach (var file in e.GetMultipleFiles())
+        {
+            files.Add(file);
+            MemoryStream ms = new MemoryStream();
+            file.OpenReadStream().CopyToAsync(ms);
+            model.Attachments.Add(new Attachment() { Contents = ms.ToArray(), AttachmentType = file.Name });
+        }
+        //TODO upload the files to the server
+    }
+
+    protected async  Task Submit() {
+        if(form.IsValid)
+        {
+            var supplier = await _supplierService.Create(model);
+            MudDialog.Close(DialogResult.Ok(supplier));
+
+        }
+    }
+    MudTabs tabs = new();
+    public bool IsLastStep { get { return  ActiveStepIx == tabs.Panels.Count-1; } }
+    public bool IsFirstStep { get { return ActiveStepIx == 0;  } }
+
+    void Cancel() => MudDialog.Cancel();
+
+    void AddContact() => model.Contacts.Add(new Contact() { FullName = "Please Conplete" });
+
+    public int ActiveStepIx { get; set; }
+
+    protected  void GoBack()
+    {
+        if (ActiveStepIx > 0)
+            SetActive(ActiveStepIx - 1);
+    }
+
+    /// <summary>
+    /// Sets the <see cref="ActiveStep"/> to the next Index
+    /// </summary>
+    protected  void GoNext()
+    {
+        if (ActiveStepIx < tabs.Panels.Count - 1)
+            SetActive(ActiveStepIx + 1);
+    }
+
+    /// <summary>
+    /// Sets the <see cref="ActiveStep"/> to the next Index
+    /// </summary>
+    protected  void Complete()
+    {
+        MudDialog.Cancel();
+    }
+
+        protected internal void SetActive(int step)
+        {
+            tabs.ActivatePanel(step);
+            //if (ActiveStepIx == tabs.Panels.Count - 1)
+            //    IsLastStep = true;
+            //else
+            //    IsLastStep = false;
+        }
+
+}

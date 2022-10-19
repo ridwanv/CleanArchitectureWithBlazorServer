@@ -9,8 +9,25 @@ using Serilog;
 using Serilog.Events;
 using Blazor.Server.UI;
 using Blazor.Server.UI.Services.Notifications;
+using BlazorShared.Services;
+using HashidsNet;
+using Hangfire;
+using Hangfire.MemoryStorage;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+// APPLICATION SPECIFIC SERVICES
+
+builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddSingleton(sp => new Hashids("Blazor.net"));
+builder.Services.AddHangfire(configuration => configuration
+        .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+        .UseSimpleAssemblyNameTypeSerializer()
+        .UseRecommendedSerializerSettings()
+        .UseMemoryStorage());
+builder.Services.AddHangfireServer();
+////////////////////////////////////////
 
 builder.Host.UseSerilog((context, configuration) =>
             configuration.ReadFrom.Configuration(context.Configuration)

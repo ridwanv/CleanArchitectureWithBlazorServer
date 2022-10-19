@@ -1,0 +1,39 @@
+@using BlazorShared
+@using BlazorShared.Models
+
+
+@if (BankAccountDetails != null)
+{
+
+    <MudGrid>
+            <MudItem xs="12" lg="12">
+                <h3>Bank Account Details</h3>
+            </MudItem>
+             <MudItem xs="12" lg="12">
+                 
+                   <MudCard> 
+                       <MudGrid>
+                           <MudItem lg="12">
+                                <MudCardContent>
+                                    <MudField Label="Account Number" Variant="Variant.Text">234324234 </MudField>
+                                    <MudField Label="Branch Code" Variant="Variant.Text">324234234234 </MudField>
+                                </MudCardContent> 
+                            </MudItem>
+                        </MudGrid>
+                 </MudCard>
+            </MudItem>
+
+
+
+
+    </MudGrid>
+
+
+}
+
+
+@code {
+    [Parameter]
+    public BlazorShared.Models.BankAccount BankAccountDetails { get; set; }     
+
+}

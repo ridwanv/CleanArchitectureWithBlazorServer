@@ -1,0 +1,124 @@
+﻿@page "/suppliers/addedit"
+
+@using BlazorShared.Models
+@using BlazorShared.Services
+
+@inject ISupplierService _supplierService
+
+<h1> @model.Name</h1>
+<h7> Supplier Id: @model.Id</h7>
+
+<MudGrid>
+
+        <MudItem xs="6">
+            <MudPaper Class="mud-width-full py-8 pa-4">
+                <h3>Supplier Information</h3>
+                <MudTextField For="@(() => model.Name)" T="string" Label="Name" Required="true" RequiredError="Supplier name is required!"/>
+                <MudTextField For="@(() => model.TaxReferenceNumber)" T="string" Label="Tax Number" Required="true" RequiredError="Tax Number is required!"/>
+                <MudTextField For="@(() => model.PhoneNumber)" T="string" Label="PhoneNumber" Required="false" />
+                <MudTextField For="@(() => model.Website)" T="string" Label="Website" Required="false" />
+                <MudTextField For="@(() => model.Comments)" T="string" Label="Notes"  Lines="5"/>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="6">
+            <MudPaper Class="mud-width-full py-8 pa-4">
+                <h3>Address Details</h3>
+                <BlazorComponents.Components.Address AddressModel="@model.PhysicalAddress"></BlazorComponents.Components.Address>
+            </MudPaper>
+        </MudItem>
+
+     <MudItem xs="12">
+        <MudPaper Class="pa-4">
+            <MudTable Items="model.Contacts" Dense="true" Hover="true"
+              @bind-SelectedItem="SelectedContact" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
+              OnCommitEditClick="@(() => Snackbar.Add("Commit Edit Handler Invoked"))"
+               IsEditRowSwitchingBlocked="true">
+
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Designation</MudTh>
+                    <MudTh>Phone Number</MudTh>
+                    <MudTh>Email Address</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Full Name">@context.FullName</MudTd>
+                    <MudTd DataLabel="Position">@context.Position</MudTd>
+                    <MudTd DataLabel="Phone Number">@context.PhoneNumber</MudTd>
+                    <MudTd DataLabel="Email Address">@context.EmailAddress</MudTd>
+                </RowTemplate>
+                <RowEditingTemplate>
+                    <MudTd DataLabel="Full Name">
+                        <MudTextField @bind-Value="@context.FullName" Required />
+                    </MudTd>
+                    <MudTd DataLabel="Position">
+                        <MudTextField @bind-Value="@context.Position" Required />
+                    </MudTd>
+                    <MudTd DataLabel="Phone Number">
+                        <MudTextField @bind-Value="@context.PhoneNumber" Required />
+                    </MudTd>
+                    <MudTd DataLabel="Email Address">
+                        <MudTextField @bind-Value="@context.EmailAddress" Required />
+                    </MudTd>
+                </RowEditingTemplate>
+            </MudTable>  
+            <MudButton ButtonType="ButtonType.Button" @onclick="AddContact"> Add Contact</MudButton>
+        </MudPaper>
+    </MudItem>
+
+    <MudItem>
+                <MudPaper Class="pa-4 mt-4">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" DisableElevation="true" OnClick="@(()=>Save())">Save</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" DisableElevation="true" OnClick="@(()=>Cancel())" Class="mx-2">Cancel</MudButton>
+        </MudPaper>
+    </MudItem>
+
+</MudGrid>
+
+
+
+
+@code {
+        MudForm form = default!;
+
+    public SupplierCreateRequest model { get; set; } = new() {};
+
+    public BlazorShared.Models.Contact SelectedContact { get; set; } = new();
+
+
+    [Inject]
+    private NavigationManager _navigationManager { get; set; } = default!;
+
+
+
+
+    public async void AddContact()
+    {
+            var contactModel = new BlazorShared.Models.Contact();
+            var parameters = new DialogParameters
+            {
+                   { nameof(_ContactFormDialog.model),contactModel },
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+            var dialog = DialogService.Show<_ContactFormDialog>(string.Format(PromptText.CREATEAITEM, "Add Contact"), parameters, options);
+            var state = await dialog.Result;
+            if (!state.Cancelled)
+            {
+                model.Contacts.Add(contactModel);
+                Snackbar.Add($"{ToastText.CREATESUCCESS}", MudBlazor.Severity.Info);
+            }
+    }
+
+
+
+   public void Save()
+   {
+
+    }
+
+    public void Cancel()
+    {
+        _navigationManager.NavigateTo("/suppliers");
+    }
+
+}

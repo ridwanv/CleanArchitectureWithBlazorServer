@@ -4,6 +4,7 @@
 using Microsoft.Extensions.Configuration;
 using CleanArchitecture.Blazor.Infrastructure.Extensions;
 using CleanArchitecture.Blazor.Infrastructure.Persistence.Interceptors;
+using HashidsNet;
 
 namespace CleanArchitecture.Blazor.Infrastructure;
 

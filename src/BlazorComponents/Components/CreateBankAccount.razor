@@ -1,0 +1,63 @@
+@using BlazorShared.Models
+@using BlazorShared.Services
+@inject IBankService _bankService
+
+
+
+
+<MudGrid>
+    <MudItem xs="12" sm="7">
+        <MudPaper Class="pa-4">
+            <MudForm @ref="@form" Model="@BankVerificationRequest">
+          
+                    <MudTextField T="string" Label="Initials" Required="true" @bind-Value="BankVerificationRequest.Initials" RequiredError="Initials is required!"/>
+                    <MudTextField T="string" Label="Last Name" Required="true" @bind-Value="BankVerificationRequest.LastName" RequiredError="Last Name is required!"/>
+                    <MudTextField T="string" Label="Email" Required="true" @bind-Value="BankVerificationRequest.EmaillAddress" RequiredError="Email is required!"/>
+                    <MudTextField T="string" Label="Account Number" Required="true" @bind-Value="BankVerificationRequest.BankAccount.AccountNumber" RequiredError="Account Number is required!"/>
+                    <div class="d-flex">
+                        <MudRadioGroup T="string" Required="true" RequiredError="Account type is required!" @bind-Value="BankVerificationRequest.BankAccount.BranchCode">
+                            <MudRadio Option="@("Savings")">Savings</MudRadio>
+                            <MudRadio Option="@("Cheque")">Cheque</MudRadio>
+                        </MudRadioGroup>
+                    </div>
+
+            </MudForm>   
+        </MudPaper>
+        @if (!IsModel)
+        {
+            <MudPaper Class="pa-4 mt-4">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" DisableElevation="true" OnClick="@(async () => await Submit())">Submit</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" DisableElevation="true" OnClick="@(()=>form.Reset())" Class="mx-2">Reset</MudButton>
+            <MudButton Variant="Variant.Filled" DisableElevation="true" OnClick="@(()=>form.ResetValidation())">Reset Validation</MudButton>
+        </MudPaper>
+        }
+    </MudItem>
+
+</MudGrid>
+
+
+@code {
+
+    MudForm form = default!;
+
+    [Parameter]
+    public  BankVerificationRequest? BankVerificationRequest{ get; set; }
+    [Parameter]
+    public EventCallback<BankVerificationRequest> OnFormSubmit { get; set; }
+
+    [Parameter]
+    public bool IsModel { get; set; }
+
+
+    public async Task Submit()
+    {
+        await form.Validate();
+
+        if (form.IsValid)
+        {
+            var response =  _bankService.VerifyBankAccount(BankVerificationRequest);
+            await OnFormSubmit.InvokeAsync(BankVerificationRequest);
+        }
+    }
+
+}

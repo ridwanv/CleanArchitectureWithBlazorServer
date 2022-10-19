@@ -1,0 +1,48 @@
+
+@using BlazorShared.Models
+@using Microsoft.AspNetCore.Components.Forms
+
+
+
+
+@if (Person != null)
+{
+
+    <MudGrid>
+            <MudItem xs="12" lg="12">
+                <h3>Identity Card</h3>
+            </MudItem>
+             <MudItem xs="12" lg="12">
+                 
+                   <MudCard> 
+                       <MudGrid>
+                           <MudItem lg="8">
+                                <MudCardContent>
+                                    <MudField Label="Full Name" Variant="Variant.Text">@Person.FirstName @Person.LastName </MudField>
+                                    <MudField Label="Identity Number" Variant="Variant.Text">@Person.IdentityNumber  </MudField>
+                                   <MudField Label="Risk Rating" Variant="Variant.Text" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Warning" AdornmentColor="Color.Warning"> Medium</MudField>
+                                </MudCardContent> 
+                            </MudItem>
+                            <MudItem lg="4">
+                                <MudImage ObjectPosition="ObjectPosition.Right" Height="200" Width="180" Src="@Person.Photo" Elevation="25" Class="rounded-lg"> </MudImage>
+                               
+                            </MudItem>
+                        </MudGrid>
+                 </MudCard>
+            </MudItem>
+
+
+
+
+    </MudGrid>
+
+
+}
+
+
+@code {
+    [Parameter]
+    public Person Person { get; set; }
+
+
+}
