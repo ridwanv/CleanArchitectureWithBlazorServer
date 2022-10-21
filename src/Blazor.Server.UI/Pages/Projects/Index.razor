@@ -1,0 +1,217 @@
+@page "/projects/index"
+
+@using BlazorShared.Models
+@using BlazorShared.Services
+@using FluentEmail.Core
+@using FluentEmail.Razor
+@using HashidsNet
+@using System.Globalization
+@inject IProjectService _projectService;
+
+
+
+
+@inject IJSRuntime JS
+@inject IStringLocalizer<Index> L
+@attribute [Authorize(Policy = Permissions.Products.View)]
+<PageTitle>@Title</PageTitle>
+<style>
+    .mud-table-toolbar {
+        height: 84px !important;
+    }
+</style>
+<MudTable ServerData="@(new Func<TableState, Task<TableData<Project>>>(ServerReload))"
+                  FixedHeader="true"
+                  FixedFooter="true"
+                  Virtualize="true"
+                  Height="calc(100vh - 315px)"
+                  Loading="@_loading"
+                  SortLabel="@L["Sort By"]"
+                  MultiSelection="false" @bind-SelectedItem="_selectedItem"
+                  Hover="true" @ref="_table">
+
+                <ToolBarContent>
+                <div class="justify-start pt-3">
+                    <MudText Typo="Typo.h6">@L["Projects"]</MudText>
+                    <MudHidden Breakpoint="Breakpoint.SmAndDown">
+                        <MudButton DisableElevation Variant="Variant.Outlined"
+                                   Size="Size.Small"
+                                   Disabled="@_loading"
+                                   OnClick="@(()=> OnRefresh())"
+                                   StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Primary"
+                                   Style="margin-right: 4px; margin-bottom:4px">@L["Refresh"]</MudButton>
+                        @if (_canRequest)
+                        {
+                            
+
+                            <MudButton DisableElevation Variant="Variant.Outlined" Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.PostAdd"
+                                   Disabled="_loading"
+                                   Size="Size.Small"
+                                   OnClick="@(()=>AddProject())"
+                                   Style="margin-right: 4px; margin-bottom:4px"
+                                   IconColor="Color.Surface">@L["Add Project"]</MudButton>
+
+
+                        }
+
+
+
+                    </MudHidden>
+                </div>
+                <MudSpacer />
+                <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Value="@_searchString" Placeholder="Search" Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            </ToolBarContent>
+ 
+            <HeaderContent>
+                <MudTh>Actions</MudTh>
+                <MudTh>@L["Id"]</MudTh>
+                <MudTh>@L["Code"]</MudTh>
+                <MudTh>@L["Name"]</MudTh>
+                <MudTh>@L["Description"]</MudTh>
+                <MudTh>@L["Status"]</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="@L["Actions"]">
+
+                    <MudIconButton Icon="fa-solid fa-eye" Color="Color.Error" OnClick="@(()=>OnView(context))"></MudIconButton>
+                  
+                </MudTd>
+
+                <MudTd DataLabel="@L["Id"]">
+                    <MudText>@context.Id</MudText>
+                </MudTd>
+                <MudTd DataLabel="@L["Project Name"]">
+                    <MudText>@context.ProjectName</MudText>      
+                </MudTd>
+                <MudTd DataLabel="@L["Project Code"]">
+                    <MudText>@context.ProjectCode</MudText>          
+                </MudTd>
+                <MudTd DataLabel="@L["Description"]">
+                    <MudText>@context.Description</MudText>
+                </MudTd>
+                <MudTd DataLabel="@L["Status"]">
+                    <MudText></MudText>
+                </MudTd>
+
+            </RowTemplate>
+            <NoRecordsContent>
+                <MudText>@L["No matching records found"]</MudText>
+            </NoRecordsContent>
+            <LoadingContent>
+                <MudText>@L["Loading..."].</MudText>
+            </LoadingContent>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+@code {
+    public string? Title { get; private set; }
+    private HashSet<Project> _selectedItems = new HashSet<Project>();
+      private Project _selectedItem = new Project();
+    private MudTable<Project> _table = default!;
+    private int _totalItems;
+    private string _searchString = string.Empty;
+    private bool _loading;
+    private bool _uploading;
+    private bool _downloading;
+
+
+    [Inject]
+    private Hashids hashids { get; set; } = default!;
+    [Inject]
+    private NavigationManager _navigationManager { get; set; } = default!;
+    [Inject]
+    private IFluentEmail _fluentEmail { get; set; }
+
+    [CascadingParameter]
+    protected Task<AuthenticationState> AuthState { get; set; } = default!;
+
+
+
+    private bool _canSearch;
+    private bool _canCreate;
+    private bool _canEdit;
+    private bool _canDelete;
+    private bool _canApprove;
+    private bool _canImport;
+    private bool _canExport;
+    private bool _canRequest;
+    protected override async Task OnInitializedAsync()
+    {
+        Title = L["Visitors"];
+        var state = await AuthState;
+        _canCreate = (await AuthService.AuthorizeAsync(state.User, Permissions.Customers.Create)).Succeeded;
+        _canSearch = (await AuthService.AuthorizeAsync(state.User, Permissions.Customers.Search)).Succeeded;
+        _canEdit = (await AuthService.AuthorizeAsync(state.User, Permissions.Customers.Edit)).Succeeded;
+        _canDelete = (await AuthService.AuthorizeAsync(state.User, Permissions.Customers.Delete)).Succeeded;
+        _canApprove = (await AuthService.AuthorizeAsync(state.User, Permissions.Customers.View)).Succeeded;
+        _canRequest = (await AuthService.AuthorizeAsync(state.User, Permissions.Customers.View)).Succeeded;
+        _canImport = false;
+        _canExport = false;
+
+    }
+    private async Task<TableData<Project>> ServerReload(TableState state)
+    {
+        var projects = await _projectService.Search(new ProjectSearchRequest() { });
+        return new TableData<Project>() {TotalItems = projects.Count, Items = projects };
+
+
+
+    }
+
+    private void OnFilterChanged(string s)
+    {
+        InvokeAsync(async () =>
+        {
+            await _table.ReloadServerData();
+        });
+    }
+    private async Task AddProject()
+    {
+
+        var model = new Project();
+        var parameters = new DialogParameters { ["model"] = new Project() };
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true,Position = DialogPosition.Center };
+        var dialog = DialogService.Show<_ProjectFormDialog>(L["Create a new supplier"], parameters, options);
+        var result = await dialog.Result;
+        var projectRequest = (Project)result.Data;
+        if (!result.Cancelled)
+        {
+            _projectService.Create(projectRequest);
+            _table.ReloadServerData();
+            Snackbar.Add($" Created {projectRequest.ProjectName}", MudBlazor.Severity.Info);
+        
+            //_navigationManager.NavigateTo($"/suppliers/{(supplierRequest.Id}");
+        }
+        else
+        {
+            Snackbar.Add($"{L["Failed"]}", MudBlazor.Severity.Info);
+        }
+    }
+
+    private async Task OnView(Project project)
+    {
+        if (project != null)
+        {
+            _navigationManager.NavigateTo($"/projects/{project.Id}");
+        }
+    }
+
+    private async Task OnSearch(string text)
+    {
+        _selectedItems = new();
+        _searchString = text;
+        await _table.ReloadServerData();
+    }
+    private async Task OnRefresh()
+    {
+        _selectedItems = new();
+        _searchString = string.Empty;
+        await _table.ReloadServerData();
+    }
+
+
+
+    }

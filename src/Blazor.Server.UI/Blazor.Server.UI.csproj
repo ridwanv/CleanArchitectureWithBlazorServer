@@ -11,6 +11,7 @@
   </PropertyGroup>
 
     <ItemGroup>
+      <Content Remove="Pages\Projects\AddEdit.razor" />
       <Content Remove="Pages\Suppliers\_SupplierRequestFormDialog.razor" />
     </ItemGroup>
   <ItemGroup>

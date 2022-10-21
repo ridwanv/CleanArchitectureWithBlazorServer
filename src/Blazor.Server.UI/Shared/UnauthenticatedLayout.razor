@@ -1,0 +1,22 @@
+@using Blazor.Server.UI.Services
+@inherits LayoutComponentBase
+
+@inject IStringLocalizer<SharedResource> L
+@inject LayoutService _layoutService
+
+<MudDialogProvider />
+<MudSnackbarProvider />
+<MudThemeProvider @ref="@_mudThemeProvider"  Theme="@_layoutService.CurrentTheme" IsDarkMode="@_layoutService.IsDarkMode" IsDarkModeChanged="@_layoutService.SetDarkMode" />
+
+<MudLayout>
+            <MudMainContent>
+                <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mb-4 mt-4">
+                    @Body
+                </MudContainer>
+            </MudMainContent>
+</MudLayout>
+
+@code{
+
+    private MudThemeProvider? _mudThemeProvider;
+}

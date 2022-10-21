@@ -25,17 +25,33 @@ public class Supplier
 
     public string PhoneNumber { get; set; }
 
-    public Contact PrimaryContact { get; set; }
+    public Contact PrimaryContact { get; set; } = new Contact();
 
     public string Comments { get; set; }
+
+    public List<Invitation> Invitations { get; set; }
 }
 
 public class Contact
 {
+    public Guid Id { get; set; } = Guid.NewGuid();
     public string FullName { get; set; }
     public string Position { get; set; }
     public string EmailAddress { get; set; }
     public string PhoneNumber { get; set; }
+
+}
+
+public class Project
+{
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public string ProjectName { get; set; }
+    public string ProjectCode { get; set; }
+    public string Description { get; set; }
+
+    public List<Event> Events { get; set; } = new List<Event>();
+
+
 
 }
 
@@ -56,7 +72,85 @@ public class Requests
 
 }
 
+public class ProjectSearchRequest
+{
+    public string Name { get; set; }
 
+}
+
+public class EventSearchRequest
+{
+    public string Name { get; set; }
+    public Guid ProjectId { get; set; }
+
+}
+
+public class Event
+{
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid ProjectId { get; set; }
+
+    public string EventName { get; set; }
+    public EventType EventType { get; set; }
+
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
+
+    public List<Supplier> Suppliers { get; set; } = new List<Supplier>();
+
+    public Questionaire Questionaire { get; set; } = new Questionaire() {  };
+
+    public EventStatus EventStatus { get; set; } = EventStatus.Draft;
+
+    public List<Invitation> Invitations { get; set; } = new List<Invitation>();
+
+
+    public void PublishEvent()
+    {
+        try
+        {
+            if (!EndDate.HasValue)
+                throw new Exception("End Date Not Populated");
+            this.EventStatus = EventStatus.Active;
+            StartDate = DateTime.Now;
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+
+    }
+    public Event(Guid projectId)
+    {
+
+    }
+
+    public Event()
+    {
+
+    }
+
+}
+
+
+
+public enum EventStatus
+{
+    Draft,
+    Active, 
+    Paused,
+    Ended
+
+
+
+}
+public enum EventType
+{
+    RFI,
+    Request,
+    RFQ
+}
 
 public class SupplierSearchRequest
 {

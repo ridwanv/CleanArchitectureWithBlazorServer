@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Hangfire;
+using EasyCaching.SQLite;
 
 namespace BlazorShared.Services;
 public static class Bootstrap
@@ -19,8 +20,14 @@ public static class Bootstrap
 
         services.AddEasyCaching(options =>
         {
+          
 
-            options.UseInMemory("default");
+            //options.UseInMemory("default");
+            //use sqlite cache
+            options.UseSQLite(config =>
+            {
+                config.DBConfig = new SQLiteDBOptions {FileName = "SupplierManagement.db" };
+            }, "default");
 
 
         });

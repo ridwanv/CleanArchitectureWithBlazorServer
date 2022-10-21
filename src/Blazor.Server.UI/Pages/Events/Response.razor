@@ -1,0 +1,104 @@
+﻿@layout UnauthenticatedLayout
+@page "/response/edit/{invitationId:guid}"
+@attribute [AllowAnonymous]
+@using BlazorComponents.Components
+@using BlazorShared.Models
+@using BlazorShared.Services
+@inject IEventService _eventService;
+
+<h3>Questionaire</h3>
+
+
+<MudGrid>
+    <MudItem xs="12" lg="12">
+    <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+            @foreach (var questionSection in _questionaire.Sections)
+            {
+                <MudTabPanel Text="@questionSection.SectionName">
+                         <MudItem xs="12">
+                            
+                        @foreach (var item in questionSection.Questions)
+                        {             
+                            <MudCard>
+                                <MudCardHeader>
+                                    <CardHeaderContent>
+                                        <MudText Typo="Typo.h6">@item.QuestionLabel</MudText>
+                                    </CardHeaderContent>
+                                    <CardHeaderActions>
+                                        <MudIconButton Icon="@Icons.Material.Filled.Info" Color="Color.Default" />
+                                    </CardHeaderActions>
+                                </MudCardHeader>
+                                <QuestionAnswer Question="Self Assessment" AnswerType="@item.AnswerType"> </QuestionAnswer>
+
+
+                                @if(item is AssessmentQuestion assessmentQuestion)
+                                {
+                                    <MudGrid>  
+                                        <MudItem xs="2">
+                                            <MudSelect T="Assessment" Label="Internal Assessment" AnchorOrigin="Origin.BottomCenter"   @bind-Value="assessmentQuestion.InternalAssessment">
+                                                          <MudSelectItem T="Assessment"  Value="Assessment.NotApplicable"/>
+                                                          <MudSelectItem T="Assessment"  Value="Assessment.DoNotComply"/>
+                                                          <MudSelectItem T="Assessment"  Value="Assessment.PartiallyComply"/>
+                                                          <MudSelectItem T="Assessment"  Value="Assessment.FullyComply"/>
+                                                </MudSelect>
+                                        </MudItem>
+                                        <MudItem xs="6">
+                                            <MudTextField T="string" Label="Answer/Notes" Variant="Variant.Outlined" @bind-Value="@assessmentQuestion.InternalNote" Lines="1" />
+                                        </MudItem>
+                                        <MudItem xs="4">
+                                            <MudAvatar Color="Color.Success" Variant="Variant.Outlined">@assessmentQuestion.Score</MudAvatar>
+                                        </MudItem>
+                                    </MudGrid>
+                                                 
+                                        @*        <h5> @assessmentQuestion.Score</h5>*@
+                                
+                                }
+                                   
+
+                             </MudCard>
+       
+                        }
+                         </MudItem>
+                  </MudTabPanel>
+            }
+    </MudTabs>
+
+    </MudItem>
+</MudGrid>
+
+<MudButton ButtonType="ButtonType.Button" OnClick="@OnClick"> cLICK mE</MudButton>
+@code {
+
+    [Parameter]
+    public Guid InvitationId { get; set; }
+
+    [Parameter]
+    public bool IsInternalAssessment { get; set; }
+
+    //https://stackoverflow.com/questions/61845181/how-to-use-bind-value-in-a-dynamic-form
+    //https://github.com/lucianbumb/BlazorDynamicForm/blob/master/BlazorDynamicForm/Pages/DynamicField.razor
+    BlazorShared.Models.Questionaire _questionaire = new BlazorShared.Models.Questionaire();
+
+    List<BlazorShared.Models.Questionaire> Questionaires = new List<BlazorShared.Models.Questionaire>();
+
+    private BlazorShared.Models.Questionaire Questionaire = new BlazorShared.Models.Questionaire();
+
+    void OnValueChanged(object e, string prop)
+    {
+
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        var invitation = await _eventService.GetInvitation(InvitationId);
+        _questionaire = invitation.Questionaire;
+        //Questionaires = await questionaireService.Search(new QuestionaireSearchRequest());
+        //_questionaire = Questionaires.FirstOrDefault();
+    }
+
+    public void OnClick()
+    {
+
+
+    }
+}

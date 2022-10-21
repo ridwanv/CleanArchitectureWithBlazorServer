@@ -1,0 +1,146 @@
+﻿@using CleanArchitecture.Blazor.Application.Features.Customers.Commands.AddEdit
+
+@inherits MudComponentBase
+@inject IStringLocalizer<BlazorShared.Models.Question> L
+@using BlazorShared.Models;
+<MudDialog>
+    <DialogContent>
+        <MudForm Model="@model" @ref="@_form">
+            <MudGrid>
+
+                <MudItem xs="12"> 
+                        <MudTextField Label="QuestionLabel" @bind-Value="model.QuestionLabel" For="@(() => model.QuestionLabel)" Required="true" RequiredError="@L["name is required!"]"></MudTextField>
+                </MudItem> 
+                <MudItem xs="12"> 
+                        <MudTextField Label="Category/Section" @bind-Value="model.Category" For="@(() => model.Category)" Required="true" RequiredError="@L["name is required!"]"></MudTextField>
+                </MudItem> 
+
+                @if(model is AssessmentQuestion assessmentQuestion)
+                {
+                        <MudItem xs="12">
+                                 <MudSelect T="BlazorShared.Models.Priority" Label="Answer Type" AnchorOrigin="Origin.BottomCenter"   @bind-Value="assessmentQuestion.Priority">
+                                                                      <MudSelectItem T="Priority"  Value="Priority.SHouldHave"/>
+                                                                      <MudSelectItem T="Priority"  Value="Priority.CouldHave"/>
+                                                                      <MudSelectItem T="Priority"  Value="Priority.LikeToHave"/>
+                                                                      <MudSelectItem T="Priority"  Value="Priority.MustHave"/>
+                                 </MudSelect>
+                        </MudItem>
+
+                }
+                else
+                {
+
+                <MudItem xs="12">
+                     <MudSelect T="BlazorShared.Models.AnswerTypeEnum" Label="Answer Type" AnchorOrigin="Origin.BottomCenter"    ValueChanged="@((AnswerTypeEnum newValue) => OnValueChanged(newValue))">
+                                                          <MudSelectItem T="AnswerTypeEnum"  Value="AnswerTypeEnum.ShortText"/>
+                                                          <MudSelectItem T="AnswerTypeEnum"  Value="AnswerTypeEnum.MulipleChoice"/>
+                                                          <MudSelectItem T="AnswerTypeEnum"  Value="AnswerTypeEnum.YesNo"/>
+
+                     </MudSelect>
+                </MudItem> 
+
+                }
+
+                @if(showMultipleChoiceOptions)
+                {
+                    if (model.AnswerType is MultipleChoice multipleChoice)
+                    {
+                        <MudTable Items="multipleChoice.Choices" Dense="true" Hover="true">
+                            <HeaderContent>
+                                <MudTh>Option</MudTh>
+                                <MudTh>Value</MudTh>
+
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="Text">@context.Key </MudTd>
+                                <MudTd DataLabel="Value">@context.Value </MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                        <MudButton ButtonType="ButtonType.Button" @onclick='() => multipleChoice.Choices.Add("","")'> Add Answer</MudButton>
+                    }
+                }
+
+
+             
+
+
+
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">@ButtonText.CANCEL</MudButton>
+        <MudButton Color="MudBlazor.Color.Primary" OnClick="Submit">@ButtonText.OK</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    MudForm? _form;
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; } = default!;
+
+    private bool showTechnicalQuestionOptions; 
+    private bool showMultipleChoiceOptions=false;
+
+
+    void OnValueChanged(AnswerTypeEnum newValue)
+    {
+        model.AnswerTypeEnum = newValue;
+        // Perform some other actions
+        switch (newValue)
+        {
+            case AnswerTypeEnum.ShortText:
+                model.AnswerType = new ShortText();
+                break;
+            case AnswerTypeEnum.MulipleChoice:
+                model.AnswerType = new MultipleChoice();
+                showMultipleChoiceOptions = true;
+                break;
+            default:
+                model.AnswerType = new ShortText();
+                break;
+        }
+    }
+
+    async void OnAnswerTypeChange(ChangeEventArgs e)
+    {
+        var answerType = (AnswerTypeEnum)e.Value;
+
+        switch (answerType)
+        {
+            case AnswerTypeEnum.ShortText:
+                model.AnswerType = new ShortText();
+                break;
+            case AnswerTypeEnum.MulipleChoice:
+                model.AnswerType = new MultipleChoice();
+                break;
+            default:
+                model.AnswerType = new ShortText();
+                break;
+        }
+
+        if(answerType == AnswerTypeEnum.Criterios)
+        {
+            model = new AssessmentQuestion() { QuestionId = model.QuestionId,AnswerTypeEnum = model.AnswerTypeEnum,IsMandatory = model.IsMandatory,QuestionLabel = model.QuestionLabel,AnswerType = new Criteria()};
+            showTechnicalQuestionOptions = true;
+        }
+    }
+
+
+    [EditorRequired] [Parameter] public BlazorShared.Models.Question model { get; set; } = null!;
+
+    
+
+    async Task Submit()
+    {
+        if(_form is not null) {
+            await _form.Validate();
+            if (_form.IsValid)
+            {
+               
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+        }
+    }
+    void Cancel() => MudDialog.Cancel();
+}

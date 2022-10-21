@@ -1,0 +1,336 @@
+﻿@page "/events/add/{projectId:guid?}"
+@page "/events/edit/{eventId:guid}"
+
+@using BlazorShared.Models
+@using BlazorShared.Services
+
+@inject IEventService _eventService
+
+
+    <MudPaper Class="d-flex justify-end flex-grow-1 gap-4" Elevation="0">
+        <MudButtonGroup Color="Color.Secondary" Size="Size.Medium" Variant="Variant.Outlined" Class="justify-end">
+            <MudButton>Compare Response</MudButton>
+            <MudButton>End Event</MudButton>
+            <MudButton>Pause Event</MudButton>
+        </MudButtonGroup>
+     </MudPaper>
+
+<h1> @model.EventName</h1>
+<h7> Event Id: @model.Id</h7>
+<MudChip Variant="Variant.Text" Color="Color.Info">@String.Format("{0:%d} days {0:%h} hours {0:%m} minutes {0:%s} seconds",timeLeft)</MudChip>  
+
+
+
+<MudGrid>
+
+        <MudItem xs="6">
+            <MudPaper Class="mud-width-full py-8 pa-4">
+                <h3>Event Information</h3>
+                <MudTextField @bind-Value="model.EventName"  For="@(() => model.EventName)" T="string" Label="Event Name" Required="true" RequiredError="Supplier name is required!"/>
+                <MudTextField @bind-Value="model.EventType" For="@(() => model.EventType)" T="EventType" Label="Event Type" Required="true" RequiredError="Tax Number is required!"/>
+                <MudChip Variant="Variant.Text" Color="model.EventStatus==EventStatus.Draft? Color.Default:model.EventStatus==EventStatus.Active?Color.Success: Color.Info">@model.EventStatus</MudChip>  
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="6">
+            <MudPaper Class="mud-width-full py-8 pa-4">
+                <h3>Settings</h3>
+            <MudDatePicker Label="End Date" Editable="true" @bind-Date="model.EndDate" Mask="@(new DateMask("dd/MM/yyyy"))" DateFormat="dd/MM/yyyy" Placeholder="dd/MM/yyyy" />
+      
+            </MudPaper>
+        </MudItem>
+
+       @*  <MudItem xs="12">
+        <MudPaper Class="pa-4">
+            <h3>Selected Suppliers</h3>
+            <MudTable Items="model.Suppliers" Dense="true" Hover="true"
+              @bind-SelectedItem="SelectedSupplier" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
+              OnCommitEditClick="@(() => Snackbar.Add("Commit Edit Handler Invoked"))" @ref="_tableSuppliers"
+               IsEditRowSwitchingBlocked="true">
+
+                <HeaderContent>
+                    <MudTh>Supplier</MudTh>
+                    <MudTh>Contact Email</MudTh>
+                    <MudTh>Status</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Supplier">@context.Name</MudTd>
+                    <MudTd DataLabel="Contact Email">@context.PrimaryContact.EmailAddress</MudTd>
+                    <MudTd DataLabel="Status"> </MudTd>
+
+                </RowTemplate>
+                <RowEditingTemplate>
+                    <MudTd DataLabel="Supplier">
+                        <MudTextField @bind-Value="@context.Name" Required />
+                    </MudTd>
+                    <MudTd DataLabel="Contact Email">
+                        <MudTextField @bind-Value="@context.PrimaryContact.EmailAddress" Required />
+                    </MudTd>
+                    <MudTd DataLabel="Status">
+                        <MudTextField @bind-Value="@context.PrimaryContact.EmailAddress" Required />
+                    </MudTd>
+                </RowEditingTemplate>
+            </MudTable>  
+            <MudButton ButtonType="ButtonType.Button" @onclick='() => AddSupplier()'> Add Supplier</MudButton>
+
+        </MudPaper>
+    </MudItem>*@
+
+     <MudItem xs="12">
+        <MudPaper Class="pa-4">
+            <h3>Selected Suppliers</h3>
+            <MudTable Items="model.Invitations" Dense="true" Hover="true"
+              @bind-SelectedItem="SelectedInvitation" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
+              OnCommitEditClick="@(() => Snackbar.Add("Commit Edit Handler Invoked"))" @ref="_tableInvitations"
+               IsEditRowSwitchingBlocked="true">
+
+                <HeaderContent>
+                    <MudTh>Actions </MudTh>
+                    <MudTh>Supplier</MudTh>
+                    <MudTh>Contact Email</MudTh>
+                    <MudTh>Supplier Status</MudTh>
+                    <MudTh>Response Status</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>
+                    
+                         <MudMenu Label="..." Variant="Variant.Filled" DisableElevation="true" Size="Size.Small"
+                             Dense="true"
+                             EndIcon="@Icons.Filled.KeyboardArrowDown" IconColor="Color.Info" Direction="Direction.Left"
+                             OffsetX="true">
+                           <MudMenuItem OnClick="@(()=>OnViewResponse(context))">View Response</MudMenuItem>
+                           <MudMenuItem>Send Message</MudMenuItem>
+                           <MudMenuItem>Resend Invitation</MudMenuItem>
+                           <MudMenuItem>Send Email</MudMenuItem>
+                        </MudMenu>
+                        
+                    </MudTd>
+                    <MudTd DataLabel="Supplier">@context.Supplier.Name</MudTd>
+                    <MudTd DataLabel="Contact Email">@context.Supplier.PrimaryContact.EmailAddress</MudTd>
+                    <MudTd DataLabel="Status"> </MudTd>
+                    <MudTd DataLabel="Status">@context.InvitationStatus </MudTd>
+
+                </RowTemplate>
+            </MudTable>  
+            <MudButton ButtonType="ButtonType.Button" @onclick='() => AddSupplier()'> Add Supplier</MudButton>
+
+        </MudPaper>
+    </MudItem>
+
+
+
+     <MudItem xs="12">
+        <MudPaper Class="pa-4">
+            <h3>Questions</h3>
+            <MudTable Items="model.Questionaire.Questions" Dense="true" Hover="true"
+              @bind-SelectedItem="SelectedQuestion" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
+              OnCommitEditClick="@(() => Snackbar.Add("Commit Edit Handler Invoked"))" @ref="_table"
+               IsEditRowSwitchingBlocked="true">
+
+                <HeaderContent>
+                    <MudTh>Id</MudTh>
+                    <MudTh>Question</MudTh>
+                    <MudTh>Category</MudTh>
+                    <MudTh>Type</MudTh>
+                    <MudTh>Is Mandatory</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Id">@context.QuestionId</MudTd>
+                    <MudTd DataLabel="Question">@context.QuestionLabel</MudTd>
+                     <MudTd DataLabel="Category">@context.Category</MudTd>
+                    <MudTd DataLabel="Type">@context.AnswerType </MudTd>
+                    <MudTd DataLabel="Is Mandatory">@context.IsMandatory</MudTd>
+                </RowTemplate>
+                <RowEditingTemplate>
+                    <MudTd DataLabel="Question Id">
+                        <MudTextField @bind-Value="@context.QuestionId" Required />
+                    </MudTd>
+                    <MudTd DataLabel="Question Label">
+                        <MudTextField @bind-Value="@context.QuestionLabel" Required />
+                    </MudTd>
+                    <MudTd DataLabel="Category">
+                        <MudTextField @bind-Value="@context.Category" Required />
+                    </MudTd>
+                    <MudTd DataLabel="Answer Type">
+                        <MudTextField @bind-Value="@context.AnswerTypeEnum" Required />
+                    </MudTd>
+                    <MudTd DataLabel="IsMandatory">
+                        <MudTextField @bind-Value="@context.IsMandatory" Required />
+                    </MudTd>
+                </RowEditingTemplate>
+            </MudTable>  
+            <MudButton ButtonType="ButtonType.Button" @onclick='() => AddQuestion("General")'> Add Question</MudButton>
+            <MudButton ButtonType="ButtonType.Button" @onclick='() => AddQuestion("Assessment")'> Add AssessmentQuestion</MudButton>
+        </MudPaper>
+    </MudItem>
+
+    <MudItem xs="12">
+         <MudPaper Class="pa-4 mt-4">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" DisableElevation="true" Disabled="@isSaveDisabled" OnClick="@(()=>Save())" @ref="_saveButton">Save</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" DisableElevation="true" OnClick="@(()=>Cancel())" Class="mx-2">Cancel</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Success" DisableElevation="true" OnClick="@(()=>Publish())" Class="mx-2">Publish</MudButton>
+        </MudPaper>
+    </MudItem>
+
+</MudGrid>
+
+
+
+
+@code 
+{
+    MudForm form = default!;
+    private MudTable<BlazorShared.Models.Question> _table = default!;
+    private MudTable<BlazorShared.Models.Supplier> _tableSuppliers = default!;
+    private MudTable<BlazorShared.Models.Invitation> _tableInvitations = default!;
+
+    private MudButton _saveButton = default!;
+    public Event model { get; set; } = new Event();
+
+    public BlazorShared.Models.Question SelectedQuestion { get; set; } = new();
+    public BlazorShared.Models.Supplier SelectedSupplier { get; set; } = new();
+    public BlazorShared.Models.Invitation SelectedInvitation { get; set; } = new();
+    [Inject]
+    private ISender _mediator { get; set; } = default!;
+    [Parameter]
+    public Guid? ProjectId { get; set; }        
+
+    [Parameter]
+    public Guid? EventId { get; set; } 
+
+
+    [Inject]
+    private NavigationManager _navigationManager { get; set; } = default!;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        if (EventId.HasValue)
+            model = await _eventService.Retrieve(EventId.Value);
+
+        //if (ProjectId.HasValue)
+        //    model = new Event(ProjectId.Value);
+
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if(EventId.HasValue)
+            model = await _eventService.Retrieve(EventId.Value);
+
+        if (ProjectId.HasValue)
+            model.ProjectId = ProjectId.Value;
+
+
+
+
+    }
+
+
+    public async void AddQuestion(string questionType)
+    {
+        var questionModel = new BlazorShared.Models.Question();
+        if (questionType == "Assessment")
+            questionModel = new AssessmentQuestion();
+
+        var parameters = new DialogParameters
+            {
+                   { nameof(_QuestionFormDialog.model),questionModel },
+            };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var dialog = DialogService.Show<_QuestionFormDialog>(string.Format("Add Question"), parameters, options);
+        var state = await dialog.Result;
+        if (!state.Cancelled)
+        {
+            model.Questionaire.AddQuestion(questionModel);
+            await  _table.ReloadServerData();
+            Snackbar.Add($"{ToastText.CREATESUCCESS}", MudBlazor.Severity.Info);
+        }
+    }
+
+    public async void AddSupplier()
+    {
+        var suppliersModel = new List<Supplier>();
+
+
+        var parameters = new DialogParameters
+            {
+                   { nameof(_SupplierFormDialog.Suppliers),suppliersModel },
+            };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var dialog = DialogService.Show<_SupplierFormDialog>(string.Format("Add Suppliers"), parameters, options);
+        var dialogResult = await dialog.Result;
+
+        if (!dialogResult.Cancelled)
+        {
+            suppliersModel = (List<Supplier>)dialogResult.Data;
+            //model.Suppliers.AddRange(suppliersModel);
+            foreach (var supplier in suppliersModel)
+            {
+                model.Invitations.Add(new Invitation() {Supplier = supplier });
+            }
+            await  _table.ReloadServerData();
+            Snackbar.Add($"{ToastText.CREATESUCCESS}", MudBlazor.Severity.Info);
+        }
+    }
+
+    private bool isSaveDisabled = false;
+
+    public void Save()
+    {
+        isSaveDisabled = true;
+        _eventService.Create(model);
+    }
+
+
+    public void OnViewResponse(Invitation invitation)
+    {
+        _navigationManager.NavigateTo($"/response/edit/{invitation.Id}");
+    }
+
+
+    public async void  Publish()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("ContentText", "Are you sure you want to publish this event? All suppliers will receive an invitation email to this event?");
+        parameters.Add("ButtonText", "Yes");
+        parameters.Add("Color", Color.Success);
+
+        var dialogResult = DialogService.Show<GenericDialog>("Confirm", parameters);
+        var result = await dialogResult.Result;
+        if(!result.Cancelled)
+        {
+            try
+            {
+                model.PublishEvent();
+               await _eventService.Update(model);
+
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"{ex}", MudBlazor.Severity.Error);
+            }        
+
+        }
+    }
+    public void Cancel()
+    {
+        _navigationManager.NavigateTo("/projects");
+    }
+
+    TimeSpan timeLeft = new TimeSpan(0, 0, 1);
+
+    async Task Timer()
+    {
+        timeLeft = DateTime.Now.AddDays(25) - DateTime.Now;
+        while (timeLeft>new TimeSpan())
+        {
+            await Task.Delay(1000);
+            timeLeft = timeLeft.Subtract(new TimeSpan(0,0,1));
+            StateHasChanged();
+
+        }
+        StateHasChanged();
+    }
+
+}

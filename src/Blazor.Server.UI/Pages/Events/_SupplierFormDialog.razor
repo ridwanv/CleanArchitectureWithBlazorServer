@@ -1,0 +1,97 @@
+﻿@using CleanArchitecture.Blazor.Application.Features.Customers.Commands.AddEdit
+@using BlazorShared.Models
+@using BlazorShared.Services
+@inject ISupplierService _supplierService
+@inherits MudComponentBase
+@inject IStringLocalizer<BlazorShared.Models.Question> L
+@using BlazorShared.Models;
+<MudDialog>
+    <DialogContent>
+
+         <MudPaper Class="pa-4">
+            <MudTable ServerData="@(new Func<TableState, Task<TableData<Supplier>>>(ServerReload))"
+                  FixedHeader="true"
+                  FixedFooter="true"
+                  Virtualize="true"
+                  Height="calc(100vh - 315px)"
+                  SortLabel="@L["Sort By"]"
+                  MultiSelection="true" @bind-SelectedItems="_selectedItems"
+                  Hover="true" @ref="_table">
+
+            <HeaderContent>
+                <MudTh>@L["Id"]</MudTh>
+                <MudTh>@L["Name"]</MudTh>
+                <MudTh>@L["Category"]</MudTh>
+                <MudTh>@L["Segment"]</MudTh>
+                 <MudTh>@L["Status"]</MudTh>
+                <MudTh>@L["Risk"]</MudTh>
+            </HeaderContent>
+ <RowTemplate>
+
+
+                <MudTd DataLabel="@L["Id"]">
+                    <MudText>@context.Id</MudText>
+                </MudTd>
+                <MudTd DataLabel="@L["Name"]">
+                    <MudText>@context.Name</MudText>      
+                </MudTd>
+                <MudTd DataLabel="@L["Category"]">
+                    <MudText>@context.Category</MudText>          
+                </MudTd>
+                <MudTd DataLabel="@L["Segment"]">
+                    <MudText>@context.RiskRating</MudText>
+                </MudTd>
+                <MudTd DataLabel="@L["Status"]">
+                    <MudText>@context.RiskRating</MudText>
+                </MudTd>
+                <MudTd DataLabel="@L["Risk"]">
+                    <MudText>@context.RiskRating</MudText>
+                </MudTd>
+            </RowTemplate>
+
+            </MudTable>  
+            <MudButton ButtonType="ButtonType.Button" @onclick='() => AddSupplier()'> Add Supplier</MudButton>
+
+        </MudPaper>
+
+
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">@ButtonText.CANCEL</MudButton>
+        <MudButton Color="MudBlazor.Color.Primary" OnClick="Submit">@ButtonText.OK</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    MudForm? _form;
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; } = default!;
+    private MudTable<Supplier> _table = default!;
+    private bool showTechnicalQuestionOptions; 
+    private HashSet<Supplier> _selectedItems = new HashSet<Supplier>();
+
+    public void AddSupplier()
+    {
+
+    }
+
+
+    [EditorRequired] [Parameter] public List <BlazorShared.Models.Supplier> Suppliers { get; set; } = null!;
+
+    private async Task<TableData<Supplier>> ServerReload(TableState state)
+    {
+        var suppliers = await _supplierService.SearchSuppliers(new SupplierSearchRequest() { });
+        return new TableData<Supplier>() {TotalItems = 1, Items = suppliers};
+        //var result = new TableData<PersonIdentification>() { Items = personIdentifications, TotalItems = 10 };
+        //return Task.FromResult<TableData<PersonIdentification>>(result);
+
+
+    }
+
+    async Task Submit()
+    {
+                Suppliers = _selectedItems.ToList(); ;
+                MudDialog.Close(DialogResult.Ok(Suppliers));
+    }
+    void Cancel() => MudDialog.Cancel();
+}

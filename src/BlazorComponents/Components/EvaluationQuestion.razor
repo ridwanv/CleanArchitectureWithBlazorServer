@@ -2,40 +2,24 @@
 
 <MudGrid>
   
-        @if(AnswerType is ShortText singleAnswer)
+<MudItem xs="4" lg="4">
+
+
+       @if(AnswerType is SingleAnswer singleAnswer)
         {
-           <MudItem xs="12">
-                <MudTextField T="string" Label="@Question"  @bind-Value="@singleAnswer.Answer" @onchange="OnChange" Margin="Margin.Dense"/>
-           </MudItem>
+            <MudTextField T="string" Label="@Question"  @bind-Value="@singleAnswer.Answer" @onchange="OnChange" Margin="Margin.Dense"/>
         }
-
-
-<MudItem xs="2">
-
-
-
 
         @if(AnswerType is Criteria criteriaAnswer)
         {
-@*            <MudField Label="@Question" Variant="Variant.Text" InnerPadding = "false" DisableUnderLine = "true">
+            <MudField Label="@Question" Variant="Variant.Text" InnerPadding = "false" DisableUnderLine = "true">
                 <MudRadioGroup T="Assessment" @bind-SelectedOption="@criteriaAnswer.SelfAssessment" @onchange="OnChange">
                     <MudRadio Option="Assessment.NotApplicable" Color="Color.Primary">NotApplicable </MudRadio>
                     <MudRadio Option="Assessment.DoNotComply" Color="Color.Primary">DoNotComply </MudRadio>
                     <MudRadio Option="Assessment.PartiallyComply" Color="Color.Primary">PartiallyComply </MudRadio>
                     <MudRadio Option="Assessment.FullyComply" Color="Color.Primary">FullyComply </MudRadio>
                 </MudRadioGroup>
-            </MudField>*@
-
-              <MudSelect T="Assessment" Label="@Question" AnchorOrigin="Origin.BottomCenter"   @bind-Value="@criteriaAnswer.SelfAssessment">
-                  <MudSelectItem T="Assessment"  Value="Assessment.NotApplicable"/>
-                  <MudSelectItem T="Assessment"  Value="Assessment.DoNotComply"/>
-                  <MudSelectItem T="Assessment"  Value="Assessment.PartiallyComply"/>
-                  <MudSelectItem T="Assessment"  Value="Assessment.FullyComply"/>
-@*                @foreach (var item in Enum.GetValues(typeof(Assessment)))
-                {
-                    <MudSelectItem T="Assessment"  Value="Assessment.NotApplicable"/>
-                }*@
-            </MudSelect>
+            </MudField>
         }
 
 
@@ -62,11 +46,11 @@
             </MudSelect>
         }
  </MudItem>
- <MudItem xs="10">
+ <MudItem xs="8" lg="8">
      <MudTextField T="string" Label="Answer/Notes" Variant="Variant.Outlined" @bind-Value="@AnswerType.AnswerMotivation" Lines="1" />
  </MudItem>
  </MudGrid>
- @*<MudDivider DividerType="DividerType.Middle" Class="my-1"/>*@
+ <MudDivider DividerType="DividerType.Middle" Class="my-1"/>
 @code {
 
     [Parameter]

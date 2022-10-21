@@ -1,4 +1,4 @@
-﻿@page "/suppliers/addedit"
+﻿@page "/projects/addedit"
 
 @using BlazorShared.Models
 @using BlazorShared.Services
@@ -103,10 +103,10 @@
             var contactModel = new BlazorShared.Models.Contact();
             var parameters = new DialogParameters
             {
-                   { nameof(_ContactFormDialog.model),contactModel },
+                   { nameof(_ProjectFormDialog.model),contactModel },
             };
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
-            var dialog = DialogService.Show<_ContactFormDialog>(string.Format("Add Contact"), parameters, options);
+            var dialog = DialogService.Show<_ProjectFormDialog>(string.Format("Add Contact"), parameters, options);
             var state = await dialog.Result;
             if (!state.Cancelled)
             {

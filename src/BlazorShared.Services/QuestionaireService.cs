@@ -52,7 +52,7 @@ QuestionAnswers.Add(new Question() { QuestionLabel = "The data centre hosting th
     private List<Question> GetComplianceQuestions()
     {
         var QuestionAnswers = new List<Question>();
-        QuestionAnswers.Add(new Question() { QuestionLabel = "Any application hosting customer data must reside within the boundaries of the European Union (EU) or South African (ZA) borders. Where is the solution hosted?", AnswerType = new SingleAnswer() { } });
+        QuestionAnswers.Add(new Question() { QuestionLabel = "Any application hosting customer data must reside within the boundaries of the European Union (EU) or South African (ZA) borders. Where is the solution hosted?", AnswerType = new ShortText() { } });
 
         return QuestionAnswers;
     }
@@ -60,7 +60,7 @@ QuestionAnswers.Add(new Question() { QuestionLabel = "The data centre hosting th
     private List<Question> GetAccessQuestions()
     {
         var QuestionAnswers = new List<Question>();
-        QuestionAnswers.Add(new Question() { QuestionLabel = "Where will the issues related to access be raised? Who will act as 1st line of support in case of access issues?", AnswerType = new SingleAnswer() { } });
+        QuestionAnswers.Add(new Question() { QuestionLabel = "Where will the issues related to access be raised? Who will act as 1st line of support in case of access issues?", AnswerType = new ShortText() { } });
         QuestionAnswers.Add(new Question() { QuestionLabel = "Is the solution going to be integrated with Hollard Active Directory? Are you aware if this will lead to multiple sign on issues?", AnswerType = new YesNoAnswer() { } });
         QuestionAnswers.Add(new Question() { QuestionLabel = "Will the solution result in duplicating credentials in different systems?  Is there a mitigation plan  if so?", AnswerType = new YesNoAnswer() { } });
         return QuestionAnswers;
@@ -88,19 +88,24 @@ QuestionAnswers.Add(new Question() { QuestionLabel = "The data centre hosting th
     private List<Question> GetPersonalPreferenceQuestions()
     {
         var QuestionAnswers = new List<Question>();
-        QuestionAnswers.Add(new Question() { QuestionLabel = "Has the business analysis being done for the requirement?", AnswerType = new YesNoAnswer() { } });
-        QuestionAnswers.Add(new Question() { QuestionLabel = "Has a business case been completed? ", AnswerType = new YesNoAnswer() { } });
-        QuestionAnswers.Add(new Question() { QuestionLabel = "Is the business process mapped to the capability of the solution?", AnswerType = new YesNoAnswer() { } });
-        QuestionAnswers.Add(new Question() { QuestionLabel = "Is there any deviation from the process, and how it can be met?", AnswerType = new YesNoAnswer() { } });
-        QuestionAnswers.Add(new Question() { QuestionLabel = "Are the requirement specifications documented and approved?", AnswerType = new YesNoAnswer() { } });
-        QuestionAnswers.Add(new Question() { QuestionLabel = "Are the functions performed against the use case  definition?", AnswerType = new YesNoAnswer() { } });
-        QuestionAnswers.Add(new Question() { QuestionLabel = "Is there any existing solution across Hollard Group in place to meet this requirement?", AnswerType = new YesNoAnswer() { } });
-        QuestionAnswers.Add(new Question() { QuestionLabel = "Are there differentiating features in this solution, and are these required by business?", AnswerType = new YesNoAnswer() { } });
-        QuestionAnswers.Add(new Question() { QuestionLabel = "Is  functional documentation available? ", AnswerType = new YesNoAnswer() { } });
-        QuestionAnswers.Add(new Question() { QuestionLabel = "Is the solution Tactical or Strategic? (if Tactical is there an action plan for migration to strategic solution?) ", AnswerType = new YesNoAnswer() { } });
-        QuestionAnswers.Add(new Question() { QuestionLabel = "Is a Test Environment required and available?", AnswerType = new YesNoAnswer() { } });
-        QuestionAnswers.Add(new Question() { QuestionLabel = "Are there any legal considerations regarding the solution, hosting region, or data?", AnswerType = new YesNoAnswer() { } });
-        QuestionAnswers.Add(new Question() { QuestionLabel = "Is there any tax legislation that could affect the solution, hosting region, or data?", AnswerType = new YesNoAnswer() { } });
+        QuestionAnswers.Add(new AssessmentQuestion() { Priority = Priority.MustHave,  QuestionLabel = "Does the solution support interactive voice response (IVR)?", AnswerType = new Criteria() { } });
+        QuestionAnswers.Add(new AssessmentQuestion() { Priority = Priority.MustHave, QuestionLabel = "Does the solution support Automated call distributor (ACD), call routing?", AnswerType = new Criteria() { } });
+        QuestionAnswers.Add(new AssessmentQuestion() { Priority = Priority.SHouldHave, QuestionLabel = "Support for Non-ACD call transfer?", AnswerType = new Criteria() { } });
+        QuestionAnswers.Add(new AssessmentQuestion() { Priority = Priority.CouldHave, QuestionLabel = "Can the solution support Skills group handling?", AnswerType = new Criteria() { } });
+        QuestionAnswers.Add(new AssessmentQuestion() { Priority = Priority.MustHave, QuestionLabel = "Does the solution support Call prioritisation?", AnswerType = new Criteria() { } });
+        //QuestionAnswers.Add(new Question() { QuestionLabel = "Has the business analysis being done for the requirement?", AnswerType = new YesNoAnswer() { } });
+        //QuestionAnswers.Add(new Question() { QuestionLabel = "Has a business case been completed? ", AnswerType = new YesNoAnswer() { } });
+        //QuestionAnswers.Add(new Question() { QuestionLabel = "Is the business process mapped to the capability of the solution?", AnswerType = new YesNoAnswer() { } });
+        //QuestionAnswers.Add(new Question() { QuestionLabel = "Is there any deviation from the process, and how it can be met?", AnswerType = new YesNoAnswer() { } });
+        //QuestionAnswers.Add(new Question() { QuestionLabel = "Are the requirement specifications documented and approved?", AnswerType = new YesNoAnswer() { } });
+        //QuestionAnswers.Add(new Question() { QuestionLabel = "Are the functions performed against the use case  definition?", AnswerType = new YesNoAnswer() { } });
+        //QuestionAnswers.Add(new Question() { QuestionLabel = "Is there any existing solution across Hollard Group in place to meet this requirement?", AnswerType = new YesNoAnswer() { } });
+        //QuestionAnswers.Add(new Question() { QuestionLabel = "Are there differentiating features in this solution, and are these required by business?", AnswerType = new YesNoAnswer() { } });
+        //QuestionAnswers.Add(new Question() { QuestionLabel = "Is  functional documentation available? ", AnswerType = new YesNoAnswer() { } });
+        //QuestionAnswers.Add(new Question() { QuestionLabel = "Is the solution Tactical or Strategic? (if Tactical is there an action plan for migration to strategic solution?) ", AnswerType = new YesNoAnswer() { } });
+        //QuestionAnswers.Add(new Question() { QuestionLabel = "Is a Test Environment required and available?", AnswerType = new YesNoAnswer() { } });
+        //QuestionAnswers.Add(new Question() { QuestionLabel = "Are there any legal considerations regarding the solution, hosting region, or data?", AnswerType = new YesNoAnswer() { } });
+        //QuestionAnswers.Add(new Question() { QuestionLabel = "Is there any tax legislation that could affect the solution, hosting region, or data?", AnswerType = new YesNoAnswer() { } });
 
 
         return QuestionAnswers;

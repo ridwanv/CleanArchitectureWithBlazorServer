@@ -1,0 +1,53 @@
+﻿@page "/questionaire/internalAssessment"
+
+@using BlazorComponents.Components
+@using BlazorShared.Models
+@using BlazorShared.Services
+@inject IQuestionaireService questionaireService
+
+<MudGrid>
+    <MudItem xs="12" lg="12">
+    <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+            @foreach (var questionSection in _questionaire.Sections)
+            {
+                <MudTabPanel Text="@questionSection.SectionName">
+                         <MudItem xs="12" lg="12">
+                        @foreach (var item in questionSection.Questions)
+                        {
+       
+                            <QuestionAnswer Question="@item.QuestionLabel" AnswerType="@item.AnswerType"> </QuestionAnswer>
+       
+                        }
+                         </MudItem>
+                  </MudTabPanel>
+            }
+    </MudTabs>
+
+    </MudItem>
+</MudGrid>
+
+
+@code {
+        //https://stackoverflow.com/questions/61845181/how-to-use-bind-value-in-a-dynamic-form
+    //https://github.com/lucianbumb/BlazorDynamicForm/blob/master/BlazorDynamicForm/Pages/DynamicField.razor
+    BlazorShared.Models.Questionaire _questionaire = new BlazorShared.Models.Questionaire();
+
+    List<BlazorShared.Models.Questionaire> Questionaires = new List<BlazorShared.Models.Questionaire>();
+
+    void OnValueChanged(object e, string prop)
+    {
+
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        Questionaires = await questionaireService.Search(new QuestionaireSearchRequest());
+        _questionaire = Questionaires.FirstOrDefault();
+    }
+
+    public void OnClick()
+    {
+
+
+    }
+}

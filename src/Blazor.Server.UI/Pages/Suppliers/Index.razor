@@ -52,6 +52,24 @@
                                    Style="margin-right: 4px; margin-bottom:4px"
                                    IconColor="Color.Surface">@L["New Supplier"]</MudButton>
 
+                            <MudButton DisableElevation Variant="Variant.Outlined" Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.PostAdd"
+                                   Disabled="_loading"
+                                   Size="Size.Small"
+                                   OnClick="@(()=>_navigationManager.NavigateTo("/suppliers/onboarding"))"
+                                   Style="margin-right: 4px; margin-bottom:4px"
+                                   IconColor="Color.Surface">@L["New Supplier"]
+                             </MudButton>
+
+                                                         <MudButton DisableElevation Variant="Variant.Outlined" Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.PostAdd"
+                                   Disabled="_loading"
+                                   Size="Size.Small"
+                                   OnClick="@(()=>_navigationManager.NavigateTo("/questionaire/test/true"))"
+                                   Style="margin-right: 4px; margin-bottom:4px"
+                                   IconColor="Color.Surface">@L["Questionaire"]
+                             </MudButton>
+
 
                         }
 
