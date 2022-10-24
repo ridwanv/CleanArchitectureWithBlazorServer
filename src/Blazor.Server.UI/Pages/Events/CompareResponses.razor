@@ -1,0 +1,113 @@
+﻿
+@page "/response/compare/{eventId:guid}"
+@using BlazorComponents.Components
+@using BlazorShared.Models
+@using BlazorShared.Services
+@inject IEventService _eventService;
+
+
+
+
+
+
+
+@*<MudChip Variant="Variant.Text" Color="Color.Info">@String.Format("{0:%d} days {0:%h} hours {0:%m} minutes {0:%s} seconds",timeLeft)</MudChip>
+*@
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudPaper Class="pa-4">
+            <h3>Selected Suppliers</h3>
+            <MudTable Items="@model.Questionaire.Questions" Dense="true" Hover="true"
+                       SortLabel="Sort By">
+
+                <HeaderContent>
+                    <MudTh>Category </MudTh>
+                    <MudTh>Question </MudTh>
+                    @foreach (var item in model.Invitations)
+                    {
+                        <MudTh>
+                                    @item.Supplier.Name
+                        </MudTh>
+                    }
+
+                </HeaderContent>
+                <RowTemplate>
+
+                    @foreach (var question in model.Questionaire.Questions)
+                    {
+                        <MudTd DataLabel="Category">@question.Category</MudTd>
+                        <MudTd DataLabel="Question">@question.QuestionLabel</MudTd>
+
+@*                        @foreach (var invite in model.Invitations)
+                         {
+                            
+                             var questionResponse = invite.Questionaire.Questions.FirstOrDefault(x=>x.QuestionId == question.QuestionId);
+                             <MudTd> @questionResponse.AnswerTypeEnum </MudTd>
+                         }*@
+                    }
+
+                </RowTemplate>
+            </MudTable>
+
+        </MudPaper>
+    </MudItem>
+
+
+</MudGrid>
+
+
+@code {
+
+    [Parameter]
+    public Guid EventId { get; set; }
+
+    [Parameter]
+    public bool IsInternalAssessment { get; set; }
+
+    BlazorShared.Models.Event model = new BlazorShared.Models.Event();
+
+
+
+    void OnValueChanged(object e, string prop)
+    {
+
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        model = await _eventService.Retrieve(EventId);
+
+        //Questionaires = await questionaireService.Search(new QuestionaireSearchRequest());
+        //_questionaire = Questionaires.FirstOrDefault();
+    }
+
+    public async void   Submit()
+    {
+
+        var parameters = new DialogParameters();
+        parameters.Add("ContentText", "Are you sure you want to submit the response? The buyer will be notified by email of your bid. If you need to make any changes you can retract your bid before End time and edit it.");
+        parameters.Add("ButtonText", "Yes");
+        parameters.Add("Color", Color.Success);
+
+        var dialogResult = DialogService.Show<GenericDialog>("Confirm", parameters);
+        var result = await dialogResult.Result;
+        if (!result.Cancelled)
+        {
+            try
+            {
+                //await _eventService.SubmitResponse(_questionaire);
+
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"{ex}", MudBlazor.Severity.Error);
+            }
+
+        }
+
+
+        
+
+    }
+}

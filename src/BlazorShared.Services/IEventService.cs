@@ -18,4 +18,6 @@ public  interface IEventService
     Task<Invitation> GetInvitation(Guid id);
 
     Task<Event> Publish(Guid id);
+
+    Task<Questionaire> SubmitResponse(Guid invitationId, Questionaire questionaire);
 }

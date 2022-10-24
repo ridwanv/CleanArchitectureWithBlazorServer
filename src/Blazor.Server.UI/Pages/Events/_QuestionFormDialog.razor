@@ -15,10 +15,21 @@
                         <MudTextField Label="Category/Section" @bind-Value="model.Category" For="@(() => model.Category)" Required="true" RequiredError="@L["name is required!"]"></MudTextField>
                 </MudItem> 
 
+                 <MudItem xs="12">
+                     <MudSelect T="BlazorShared.Models.AnswerTypeEnum" Label="Answer Type" AnchorOrigin="Origin.BottomCenter"    ValueChanged="@((AnswerTypeEnum newValue) => OnValueChanged(newValue))">
+                                                          <MudSelectItem T="AnswerTypeEnum"  Value="AnswerTypeEnum.ShortText"/>
+                                                          <MudSelectItem T="AnswerTypeEnum"  Value="AnswerTypeEnum.MulipleChoice"/>
+                                                          <MudSelectItem T="AnswerTypeEnum"  Value="AnswerTypeEnum.YesNo"/>
+                                                          <MudSelectItem T="AnswerTypeEnum" Value="AnswerTypeEnum.Evaluation" />
+                     </MudSelect>
+                </MudItem> 
+
                 @if(model is AssessmentQuestion assessmentQuestion)
                 {
+                    model.AnswerTypeEnum = AnswerTypeEnum.Evaluation;
+
                         <MudItem xs="12">
-                                 <MudSelect T="BlazorShared.Models.Priority" Label="Answer Type" AnchorOrigin="Origin.BottomCenter"   @bind-Value="assessmentQuestion.Priority">
+                                 <MudSelect T="BlazorShared.Models.Priority" Label="Priority" AnchorOrigin="Origin.BottomCenter"   @bind-Value="assessmentQuestion.Priority">
                                                                       <MudSelectItem T="Priority"  Value="Priority.SHouldHave"/>
                                                                       <MudSelectItem T="Priority"  Value="Priority.CouldHave"/>
                                                                       <MudSelectItem T="Priority"  Value="Priority.LikeToHave"/>
@@ -27,23 +38,13 @@
                         </MudItem>
 
                 }
-                else
-                {
-
-                <MudItem xs="12">
-                     <MudSelect T="BlazorShared.Models.AnswerTypeEnum" Label="Answer Type" AnchorOrigin="Origin.BottomCenter"    ValueChanged="@((AnswerTypeEnum newValue) => OnValueChanged(newValue))">
-                                                          <MudSelectItem T="AnswerTypeEnum"  Value="AnswerTypeEnum.ShortText"/>
-                                                          <MudSelectItem T="AnswerTypeEnum"  Value="AnswerTypeEnum.MulipleChoice"/>
-                                                          <MudSelectItem T="AnswerTypeEnum"  Value="AnswerTypeEnum.YesNo"/>
-
-                     </MudSelect>
-                </MudItem> 
-
-                }
 
                 @if(showMultipleChoiceOptions)
                 {
-                    if (model.AnswerType is MultipleChoice multipleChoice)
+
+                }
+
+                @if (model.AnswerType is MultipleChoice multipleChoice)
                     {
                         <MudTable Items="multipleChoice.Choices" Dense="true" Hover="true">
                             <HeaderContent>
@@ -56,9 +57,10 @@
                                 <MudTd DataLabel="Value">@context.Value </MudTd>
                             </RowTemplate>
                         </MudTable>
-                        <MudButton ButtonType="ButtonType.Button" @onclick='() => multipleChoice.Choices.Add("","")'> Add Answer</MudButton>
+                        <MudButton ButtonType="ButtonType.Button" @onclick='() => AddMulipleChoiceOption(multipleChoice)'> Add Answer</MudButton>
                     }
-                }
+
+
 
 
              
@@ -80,8 +82,15 @@
     MudDialogInstance MudDialog { get; set; } = default!;
 
     private bool showTechnicalQuestionOptions; 
+    private bool showEvaluationOptions = false;
     private bool showMultipleChoiceOptions=false;
+    private int multipleChoiceOptionCount = 0;
 
+    void AddMulipleChoiceOption(MultipleChoice multipleChoice)
+    {
+        multipleChoice.Choices.Add($"Option {multipleChoiceOptionCount.ToString()}", "test");
+        multipleChoiceOptionCount++;
+    }
 
     void OnValueChanged(AnswerTypeEnum newValue)
     {
@@ -90,11 +99,16 @@
         switch (newValue)
         {
             case AnswerTypeEnum.ShortText:
+                model = new Question() { AnswerTypeEnum = AnswerTypeEnum.ShortText, AnswerType = new ShortText(), QuestionId = model.QuestionId, QuestionLabel = model.QuestionLabel };
                 model.AnswerType = new ShortText();
                 break;
             case AnswerTypeEnum.MulipleChoice:
-                model.AnswerType = new MultipleChoice();
+                model = new Question() { AnswerTypeEnum = AnswerTypeEnum.MulipleChoice, AnswerType = new MultipleChoice(), QuestionId = model.QuestionId, QuestionLabel = model.QuestionLabel };
+                model.AnswerType = new MultipleChoice() { AnswerTypeEnum = AnswerTypeEnum.MulipleChoice};
                 showMultipleChoiceOptions = true;
+                break;
+            case AnswerTypeEnum.Evaluation:
+                model = new AssessmentQuestion() { AnswerTypeEnum = AnswerTypeEnum.Evaluation, AnswerType = new Criteria(), QuestionId = model.QuestionId, QuestionLabel = model.QuestionLabel };
                 break;
             default:
                 model.AnswerType = new ShortText();
@@ -119,7 +133,7 @@
                 break;
         }
 
-        if(answerType == AnswerTypeEnum.Criterios)
+        if(answerType == AnswerTypeEnum.Evaluation)
         {
             model = new AssessmentQuestion() { QuestionId = model.QuestionId,AnswerTypeEnum = model.AnswerTypeEnum,IsMandatory = model.IsMandatory,QuestionLabel = model.QuestionLabel,AnswerType = new Criteria()};
             showTechnicalQuestionOptions = true;

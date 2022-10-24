@@ -6,7 +6,18 @@
 @using BlazorShared.Services
 @inject IEventService _eventService;
 
-<h3>Questionaire</h3>
+
+
+<MudPaper Class="d-flex justify-end flex-grow-1 gap-4" Elevation="0">
+    <MudButtonGroup Color="Color.Secondary" Size="Size.Medium" Variant="Variant.Outlined" Class="justify-end">
+        <MudButton @onclick="Submit">Submit Response</MudButton>
+    </MudButtonGroup>
+</MudPaper>
+
+<h1> Questionaire</h1>
+<h7> Event Id: @_questionaire.QuestionaireId</h7>
+@*<MudChip Variant="Variant.Text" Color="Color.Info">@String.Format("{0:%d} days {0:%h} hours {0:%m} minutes {0:%s} seconds",timeLeft)</MudChip>
+*@
 
 
 <MudGrid>
@@ -45,9 +56,6 @@
                                         <MudItem xs="6">
                                             <MudTextField T="string" Label="Answer/Notes" Variant="Variant.Outlined" @bind-Value="@assessmentQuestion.InternalNote" Lines="1" />
                                         </MudItem>
-                                        <MudItem xs="4">
-                                            <MudAvatar Color="Color.Success" Variant="Variant.Outlined">@assessmentQuestion.Score</MudAvatar>
-                                        </MudItem>
                                     </MudGrid>
                                                  
                                         @*        <h5> @assessmentQuestion.Score</h5>*@
@@ -66,7 +74,7 @@
     </MudItem>
 </MudGrid>
 
-<MudButton ButtonType="ButtonType.Button" OnClick="@OnClick"> cLICK mE</MudButton>
+
 @code {
 
     [Parameter]
@@ -96,9 +104,32 @@
         //_questionaire = Questionaires.FirstOrDefault();
     }
 
-    public void OnClick()
+    public async void   Submit()
     {
 
+        var parameters = new DialogParameters();
+        parameters.Add("ContentText", "Are you sure you want to submit the response? The buyer will be notified by email of your bid. If you need to make any changes you can retract your bid before End time and edit it.");
+        parameters.Add("ButtonText", "Yes");
+        parameters.Add("Color", Color.Success);
+
+        var dialogResult = DialogService.Show<GenericDialog>("Confirm", parameters);
+        var result = await dialogResult.Result;
+        if (!result.Cancelled)
+        {
+            try
+            {
+                await _eventService.SubmitResponse(InvitationId,_questionaire);
+
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"{ex}", MudBlazor.Severity.Error);
+            }
+
+        }
+
+
+        
 
     }
 }

@@ -5,10 +5,33 @@
         @if(AnswerType is ShortText singleAnswer)
         {
            <MudItem xs="12">
-                <MudTextField T="string" Label="@Question"  @bind-Value="@singleAnswer.Answer" @onchange="OnChange" Margin="Margin.Dense"/>
+                <MudTextField T="string" Label=""  @bind-Value="@singleAnswer.Answer" @onchange="OnChange" Margin="Margin.Dense"/>
            </MudItem>
         }
 
+    @if (AnswerType is MultipleChoice multipleChoiceAnswer)
+    {
+        <MudItem xs="3">
+                <MudSelect T="string" Label="@Question" AnchorOrigin="Origin.BottomCenter" @bind-Text="@multipleChoiceAnswer.Answer" @bind-Value="@multipleChoiceAnswer.Answer">
+                    @foreach (var item in multipleChoiceAnswer.Choices)
+                    {
+                        <MudSelectItem Value="@item.Key" />
+                    }
+                </MudSelect>
+         </MudItem>
+    }
+
+           @if(AnswerType is YesNoAnswer yesNoAnswer)
+        {
+            <MudItem xs="3">
+                    <MudField Label="@Question" Variant="Variant.Text" InnerPadding = "false" DisableUnderLine = "true">
+                        <MudRadioGroup T="YesNoEnum" @bind-SelectedOption="@yesNoAnswer.Answer" @onchange="OnChange">
+                            <MudRadio Option="YesNoEnum.Yes" Color="Color.Primary">Yes </MudRadio>
+                             <MudRadio Option="YesNoEnum.No" Color="Color.Primary">No</MudRadio>
+                        </MudRadioGroup>
+                    </MudField>
+            </MudItem>
+        }
 
 <MudItem xs="2">
 
@@ -40,27 +63,11 @@
 
 
 
-       @if(AnswerType is YesNoAnswer yesNoAnswer)
-        {
-            <MudField Label="@Question" Variant="Variant.Text" InnerPadding = "false" DisableUnderLine = "true">
-                <MudRadioGroup T="YesNoEnum" @bind-SelectedOption="@yesNoAnswer.Answer" @onchange="OnChange">
-                    <MudRadio Option="YesNoEnum.Yes" Color="Color.Primary">Yes </MudRadio>
-                     <MudRadio Option="YesNoEnum.No" Color="Color.Primary">No</MudRadio>
-                </MudRadioGroup>
-            </MudField>
-        }
 
 
 
-       @if(AnswerType is MultipleChoice multipleChoiceAnswer)
-        {
-            <MudSelect T="string" Label="@Question" AnchorOrigin="Origin.BottomCenter" @bind-Text="@multipleChoiceAnswer.Answer"  @bind-Value="@multipleChoiceAnswer.Answer">
-                @foreach (var item in multipleChoiceAnswer.Choices)
-                {
-                    <MudSelectItem Value="@item" />
-                }
-            </MudSelect>
-        }
+
+
  </MudItem>
  <MudItem xs="10">
      <MudTextField T="string" Label="Answer/Notes" Variant="Variant.Outlined" @bind-Value="@AnswerType.AnswerMotivation" Lines="1" />

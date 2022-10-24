@@ -77,7 +77,23 @@ public class EventService : IEventService
     {
         string cacheKey = $"event:{id}";
         var results =await  _provider.GetAsync<Models.Event>(cacheKey);
+        cacheKey = $"response:{results.Value.Questionaire.QuestionaireId}";
+        foreach (var invite in results.Value.Invitations)
+        {
+            cacheKey = $"response:{invite.Id}";
+            var questionaire = _provider.GetAsync<Models.Questionaire>(cacheKey).Result;
+            if (questionaire.HasValue)
+                invite.Questionaire = questionaire.Value;
+        }
+
         return results.Value;
+    }
+
+    public async Task<Questionaire> SubmitResponse(Guid InvitationId, Questionaire questionaire)
+    {
+        string cacheKey = $"response:{InvitationId}";
+        _provider.Set<Models.Questionaire>(cacheKey, questionaire, new TimeSpan(1, 0, 0));
+        return questionaire;
     }
 
     public async Task<List<Event>> Search(EventSearchRequest eventSearchRequest)
@@ -123,7 +139,7 @@ public class EventService : IEventService
             }
 
         }
-
+       cacheKey = $"event:{eventRequest.Id}";
         _provider.Set<Models.Event>(cacheKey, eve, new TimeSpan(1, 0, 0));
         return eve;
 

@@ -24,6 +24,11 @@ public class Criteria:AnswerFormat
     public Assessment InternalAssessment { get; set; }
     public int Score { get { return 5 - (int)Priority * 3; } }
     public int MaximumScore { get { return 5 - (int)Priority * 3; } }
+
+    public Criteria()
+    {
+        AnswerTypeEnum = AnswerTypeEnum.Evaluation;
+    }
 }
 
 public enum Priority

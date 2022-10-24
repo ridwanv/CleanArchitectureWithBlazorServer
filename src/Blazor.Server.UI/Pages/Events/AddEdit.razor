@@ -9,9 +9,17 @@
 
     <MudPaper Class="d-flex justify-end flex-grow-1 gap-4" Elevation="0">
         <MudButtonGroup Color="Color.Secondary" Size="Size.Medium" Variant="Variant.Outlined" Class="justify-end">
-            <MudButton>Compare Response</MudButton>
+        @if (model.EventStatus == EventStatus.Active)
+        {
+            <MudButton OnClick="@(()=> _navigationManager.NavigateTo($"/response/compare/{EventId}"))">Compare Response</MudButton>
             <MudButton>End Event</MudButton>
             <MudButton>Pause Event</MudButton>
+        }
+        @if (model.EventStatus == EventStatus.Draft)
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" DisableElevation="true" Disabled="@isSaveDisabled" OnClick="@(()=>Save())" @ref="_saveButton">Save</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Success" DisableElevation="true" OnClick="@(()=>Publish())" Class="mx-2">Publish</MudButton>
+        }
         </MudButtonGroup>
      </MudPaper>
 

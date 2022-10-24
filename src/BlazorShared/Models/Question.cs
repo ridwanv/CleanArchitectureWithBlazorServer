@@ -3,17 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using JsonSubTypes;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace BlazorShared.Models;
+
+
 public class Question
 {
     public Guid QuestionId { get; set; } = Guid.NewGuid();
-
+    public AnswerTypeEnum AnswerTypeEnum { get; set; }
     public string Category { get; set; } = "Default";
     public string QuestionLabel { get; set; }
     public bool IsMandatory { get; set; }
-
-    public AnswerTypeEnum AnswerTypeEnum { get; set; }
     public AnswerFormat AnswerType { get; set; } = new();
 
     public static Question Create(AnswerTypeEnum answerTypeEnum)
@@ -31,7 +34,7 @@ public class Question
                 break;
             case AnswerTypeEnum.MulipleChoice:
                 break;
-            case AnswerTypeEnum.Criterios:
+            case AnswerTypeEnum.Evaluation:
                 break;
             default:
                 break;
@@ -81,6 +84,8 @@ public class SubSection:Section
 
 public class Questionaire
 {
+
+ 
     public Guid QuestionaireId { get; set; } = Guid.NewGuid();
     public List<Section> Sections { get; set; } = new List<Section>();
     public List<Question> Questions { get; set; } = new List<Question>();
@@ -108,9 +113,13 @@ public class Questionaire
 }
 
 
+[JsonConverter(typeof(JsonSubtypes), "AnswerTypeEnum")]
+[JsonSubtypes.KnownSubType(typeof(ShortText), AnswerTypeEnum.ShortText)]
+[JsonSubtypes.KnownSubType(typeof(MultipleChoice), AnswerTypeEnum.MulipleChoice)]
+[JsonSubtypes.KnownSubType(typeof(Criteria), AnswerTypeEnum.Evaluation)]
 public class AnswerFormat
 {
-
+    public AnswerTypeEnum AnswerTypeEnum { get; set; }
     public Guid AnswerId { get; set; } = Guid.NewGuid();
     public DateTime? AnswerDate { get; set; } = null;
     public string AnswerMotivation { get; set; }
@@ -175,5 +184,5 @@ public enum AnswerTypeEnum
     YesNo,
     SingleChoice,
     MulipleChoice,
-    Criterios
+    Evaluation
 }
