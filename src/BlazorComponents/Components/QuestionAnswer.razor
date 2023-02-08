@@ -2,14 +2,14 @@
 
 <MudGrid>
   
-        @if(AnswerType is ShortText singleAnswer)
+        @if(AnswerType is ShortTextDto singleAnswer)
         {
            <MudItem xs="12">
                 <MudTextField T="string" Label=""  @bind-Value="@singleAnswer.Answer" @onchange="OnChange" Margin="Margin.Dense"/>
            </MudItem>
         }
 
-    @if (AnswerType is MultipleChoice multipleChoiceAnswer)
+    @if (AnswerType is MultipleChoiceDto multipleChoiceAnswer)
     {
         <MudItem xs="3">
                 <MudSelect T="string" Label="@Question" AnchorOrigin="Origin.BottomCenter" @bind-Text="@multipleChoiceAnswer.Answer" @bind-Value="@multipleChoiceAnswer.Answer">
@@ -21,7 +21,7 @@
          </MudItem>
     }
 
-           @if(AnswerType is YesNoAnswer yesNoAnswer)
+           @if(AnswerType is YesNoAnswerDto yesNoAnswer)
         {
             <MudItem xs="3">
                     <MudField Label="@Question" Variant="Variant.Text" InnerPadding = "false" DisableUnderLine = "true">
@@ -33,33 +33,24 @@
             </MudItem>
         }
 
+        @if(AnswerType is EvaluationDto criteriaAnswer)
+        {
+            <MudItem xs="3">
+                  <MudSelect T="Assessment" Label="@Question" AnchorOrigin="Origin.BottomCenter"   @bind-Value="@criteriaAnswer.SelfAssessment">
+                      <MudSelectItem T="Assessment"  Value="Assessment.NotApplicable"/>
+                      <MudSelectItem T="Assessment"  Value="Assessment.DoNotComply"/>
+                      <MudSelectItem T="Assessment"  Value="Assessment.PartiallyComply"/>
+                      <MudSelectItem T="Assessment"  Value="Assessment.FullyComply"/>
+                </MudSelect>
+            </MudItem>
+        }
+
 <MudItem xs="2">
 
 
 
 
-        @if(AnswerType is Criteria criteriaAnswer)
-        {
-@*            <MudField Label="@Question" Variant="Variant.Text" InnerPadding = "false" DisableUnderLine = "true">
-                <MudRadioGroup T="Assessment" @bind-SelectedOption="@criteriaAnswer.SelfAssessment" @onchange="OnChange">
-                    <MudRadio Option="Assessment.NotApplicable" Color="Color.Primary">NotApplicable </MudRadio>
-                    <MudRadio Option="Assessment.DoNotComply" Color="Color.Primary">DoNotComply </MudRadio>
-                    <MudRadio Option="Assessment.PartiallyComply" Color="Color.Primary">PartiallyComply </MudRadio>
-                    <MudRadio Option="Assessment.FullyComply" Color="Color.Primary">FullyComply </MudRadio>
-                </MudRadioGroup>
-            </MudField>*@
 
-              <MudSelect T="Assessment" Label="@Question" AnchorOrigin="Origin.BottomCenter"   @bind-Value="@criteriaAnswer.SelfAssessment">
-                  <MudSelectItem T="Assessment"  Value="Assessment.NotApplicable"/>
-                  <MudSelectItem T="Assessment"  Value="Assessment.DoNotComply"/>
-                  <MudSelectItem T="Assessment"  Value="Assessment.PartiallyComply"/>
-                  <MudSelectItem T="Assessment"  Value="Assessment.FullyComply"/>
-@*                @foreach (var item in Enum.GetValues(typeof(Assessment)))
-                {
-                    <MudSelectItem T="Assessment"  Value="Assessment.NotApplicable"/>
-                }*@
-            </MudSelect>
-        }
 
 
 
@@ -80,7 +71,7 @@
     public string Question { get; set; }
 
     [Parameter]
-    public AnswerFormat AnswerType { get; set; }
+    public AnswerFormatDto AnswerType { get; set; }
 
 
 

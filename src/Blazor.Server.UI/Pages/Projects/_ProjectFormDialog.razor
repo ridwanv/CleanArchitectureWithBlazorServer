@@ -1,7 +1,7 @@
 @using CleanArchitecture.Blazor.Application.Features.Customers.Commands.AddEdit
 
 @inherits MudComponentBase
-@inject IStringLocalizer<BlazorShared.Models.Project> L
+@inject IStringLocalizer<BlazorShared.Models.ProjectDto> L
 
 <MudDialog>
     <DialogContent>
@@ -33,7 +33,7 @@
 
 
 
-    [EditorRequired] [Parameter] public BlazorShared.Models.Project model { get; set; } = null!;
+    [EditorRequired] [Parameter] public BlazorShared.Models.ProjectDto model { get; set; } = null!;
 
     async Task Submit()
     {

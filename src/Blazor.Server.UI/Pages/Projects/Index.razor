@@ -20,7 +20,7 @@
         height: 84px !important;
     }
 </style>
-<MudTable ServerData="@(new Func<TableState, Task<TableData<Project>>>(ServerReload))"
+<MudTable ServerData="@(new Func<TableState, Task<TableData<ProjectDto>>>(ServerReload))"
                   FixedHeader="true"
                   FixedFooter="true"
                   Virtualize="true"
@@ -108,9 +108,9 @@
         </MudTable>
 @code {
     public string? Title { get; private set; }
-    private HashSet<Project> _selectedItems = new HashSet<Project>();
-      private Project _selectedItem = new Project();
-    private MudTable<Project> _table = default!;
+    private HashSet<ProjectDto> _selectedItems = new HashSet<ProjectDto>();
+      private ProjectDto _selectedItem = new ProjectDto();
+    private MudTable<ProjectDto> _table = default!;
     private int _totalItems;
     private string _searchString = string.Empty;
     private bool _loading;
@@ -152,10 +152,10 @@
         _canExport = false;
 
     }
-    private async Task<TableData<Project>> ServerReload(TableState state)
+    private async Task<TableData<ProjectDto>> ServerReload(TableState state)
     {
         var projects = await _projectService.Search(new ProjectSearchRequest() { });
-        return new TableData<Project>() {TotalItems = projects.Count, Items = projects };
+        return new TableData<ProjectDto>() {TotalItems = projects.Count, Items = projects };
 
 
 
@@ -171,12 +171,12 @@
     private async Task AddProject()
     {
 
-        var model = new Project();
-        var parameters = new DialogParameters { ["model"] = new Project() };
+        var model = new ProjectDto();
+        var parameters = new DialogParameters { ["model"] = new ProjectDto() };
         var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true,Position = DialogPosition.Center };
         var dialog = DialogService.Show<_ProjectFormDialog>(L["Create a new supplier"], parameters, options);
         var result = await dialog.Result;
-        var projectRequest = (Project)result.Data;
+        var projectRequest = (ProjectDto)result.Data;
         if (!result.Cancelled)
         {
             _projectService.Create(projectRequest);
@@ -191,7 +191,7 @@
         }
     }
 
-    private async Task OnView(Project project)
+    private async Task OnView(ProjectDto project)
     {
         if (project != null)
         {

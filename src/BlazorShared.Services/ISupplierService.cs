@@ -8,8 +8,8 @@ using BlazorShared.Models;
 namespace BlazorShared.Services;
 public  interface ISupplierService
 {
-    Task<List<Supplier>> SearchSuppliers(SupplierSearchRequest supplierSearchRequest);
-    Task<Supplier> Retrieve(Guid id);
+    Task<List<SupplierDto>> SearchSuppliers(SupplierSearchRequest supplierSearchRequest);
+    Task<SupplierDto> Retrieve(Guid id);
 
-    Task<Supplier> Create(SupplierCreateRequest supplierCreateRequest);
+    Task<SupplierDto> Create(SupplierCreateRequest supplierCreateRequest);
 }

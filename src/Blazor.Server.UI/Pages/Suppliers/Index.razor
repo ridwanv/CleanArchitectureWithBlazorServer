@@ -3,6 +3,7 @@
 @using BlazorShared.Models
 @using BlazorShared.Services
 @using FluentEmail.Core
+@using FluentEmail.Core.Models;
 @using FluentEmail.Razor
 @using HashidsNet
 @using System.Globalization
@@ -20,7 +21,7 @@
         height: 84px !important;
     }
 </style>
-<MudTable ServerData="@(new Func<TableState, Task<TableData<Supplier>>>(ServerReload))"
+<MudTable ServerData="@(new Func<TableState, Task<TableData<SupplierDto>>>(ServerReload))"
                   FixedHeader="true"
                   FixedFooter="true"
                   Virtualize="true"
@@ -114,7 +115,7 @@
                             }
                              @if (_canApprove)
                             {
-                                <MudMenuItem OnClick="@(()=>OnView(context))">Submit Registration Form</MudMenuItem>
+                                <MudMenuItem OnClick="@(()=>OnInvite(context))">Submit Registration Form</MudMenuItem>
                                  <MudMenuItem OnClick="@(()=>OnView(context))">Approve</MudMenuItem>
                             }
                         </MudMenu>
@@ -156,8 +157,8 @@
         </MudTable>
 @code {
     public string? Title { get; private set; }
-    private HashSet<Supplier> _selectedItems = new HashSet<Supplier>();
-    private MudTable<Supplier> _table = default!;
+    private HashSet<SupplierDto> _selectedItems = new HashSet<SupplierDto>();
+    private MudTable<SupplierDto> _table = default!;
     private int _totalItems;
     private string _searchString = string.Empty;
     private bool _loading;
@@ -199,10 +200,10 @@
         _canExport = false;
 
     }
-    private async Task<TableData<Supplier>> ServerReload(TableState state)
+    private async Task<TableData<SupplierDto>> ServerReload(TableState state)
     {
         var suppliers = await _supplierService.SearchSuppliers(new SupplierSearchRequest() { });
-        return new TableData<Supplier>() {TotalItems = 1, Items = suppliers};
+        return new TableData<SupplierDto>() {TotalItems = 1, Items = suppliers};
         //var result = new TableData<PersonIdentification>() { Items = personIdentifications, TotalItems = 10 };
         //return Task.FromResult<TableData<PersonIdentification>>(result);
 
@@ -228,7 +229,7 @@
         //if (!result.Cancelled)
         //{
         //    Snackbar.Add($" Created {supplierRequest.Name}", MudBlazor.Severity.Info);
-        
+
         //    //_navigationManager.NavigateTo($"/suppliers/{(supplierRequest.Id}");
         //}
         //else
@@ -239,12 +240,30 @@
 
     }
 
-    private async Task OnView(Supplier supplier)
+    private async Task OnView(SupplierDto supplier)
     {
         if (supplier != null)
         {
             _navigationManager.NavigateTo($"/supplier/add/edit/{supplier.Id}");
         }
+    }
+    private async Task OnInvite(SupplierDto supplier)
+    {
+        if (supplier != null)
+        {
+            foreach (var contact in supplier.Contacts)
+            {
+                sendInvite(contact.EmailAddress, contact.FullName, supplier.Id.ToString(), contact.Id.ToString());
+            }
+        }
+    }
+
+    private Task<SendResponse> sendInvite(string toemail, string userName, string supplierId, string contactId)
+    {
+
+        var subject = string.Format(L["Welcome to {0}"], Settings.AppName);
+        var template = Path.Combine(Directory.GetCurrentDirectory(), "Resources", "EmailTemplates", "_registrationInvite.txt");
+        return _fluentEmail.To(toemail).Subject(subject).UsingTemplateFromFile(template, new { AppName = Settings.AppName, Email = toemail, UserName = userName, SupplierId = supplierId,ContactId = contactId  }, true).SendAsync();
     }
 
     private async Task OnSearch(string text)

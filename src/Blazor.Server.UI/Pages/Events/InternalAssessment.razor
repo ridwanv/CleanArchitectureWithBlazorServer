@@ -1,38 +1,93 @@
-﻿@page "/questionaire/internalAssessment"
-
+﻿
+@page "/response/assessment/{invitationId:guid}"
 @using BlazorComponents.Components
 @using BlazorShared.Models
 @using BlazorShared.Services
-@inject IQuestionaireService questionaireService
+@inject IEventService _eventService;
+
+
+
+<MudPaper Class="d-flex justify-end flex-grow-1 gap-4" Elevation="0">
+    <MudButtonGroup Color="Color.Secondary" Size="Size.Medium" Variant="Variant.Outlined" Class="justify-end">
+        <MudButton @onclick="Submit">Submit Assessment</MudButton>
+    </MudButtonGroup>
+</MudPaper>
+
+<h1> Questionaire</h1>
+<h7> Event Id: @_questionaire.QuestionaireId</h7>
+
 
 <MudGrid>
     <MudItem xs="12" lg="12">
-    <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
             @foreach (var questionSection in _questionaire.Sections)
             {
                 <MudTabPanel Text="@questionSection.SectionName">
-                         <MudItem xs="12" lg="12">
+                    <MudItem xs="12">
+
                         @foreach (var item in questionSection.Questions)
                         {
-       
-                            <QuestionAnswer Question="@item.QuestionLabel" AnswerType="@item.AnswerType"> </QuestionAnswer>
-       
+                            <MudCard>
+                                <MudCardHeader>
+                                    <CardHeaderContent>
+                                        <MudText Typo="Typo.h6">@item.QuestionLabel</MudText>
+                                    </CardHeaderContent>
+                                    <CardHeaderActions>
+                                        <MudIconButton Icon="@Icons.Material.Filled.Info" Color="Color.Default" />
+                                    </CardHeaderActions>
+                                </MudCardHeader>
+                                <QuestionAnswer Question="Self Assessment" AnswerType="@item.AnswerType"> </QuestionAnswer>
+
+
+                                @if (item.AnswerTypeEnum == AnswerTypeEnum.Evaluation)
+                                {
+                                    var assessmentQuestion = (AssessmentQuestionDto)item;
+                                    <MudGrid>
+                                        <MudItem xs="2">
+                                            <MudSelect T="Assessment" Label="Internal Assessment" AnchorOrigin="Origin.BottomCenter" @bind-Value="assessmentQuestion.InternalAssessment">
+                                                <MudSelectItem T="Assessment" Value="Assessment.NotApplicable" />
+                                                <MudSelectItem T="Assessment" Value="Assessment.DoNotComply" />
+                                                <MudSelectItem T="Assessment" Value="Assessment.PartiallyComply" />
+                                                <MudSelectItem T="Assessment" Value="Assessment.FullyComply" />
+                                            </MudSelect>
+                                        </MudItem>
+                                        <MudItem xs="6">
+                                            <MudTextField T="string" Label="Answer/Notes" Variant="Variant.Outlined" @bind-Value="@assessmentQuestion.InternalNote" Lines="1" />
+                                        </MudItem>
+                                    </MudGrid>
+
+                                    @*        <h5> @assessmentQuestion.Score</h5>*@
+
+                                }
+
+
+                            </MudCard>
+
                         }
-                         </MudItem>
-                  </MudTabPanel>
+                    </MudItem>
+                </MudTabPanel>
             }
-    </MudTabs>
+        </MudTabs>
 
     </MudItem>
 </MudGrid>
 
 
 @code {
-        //https://stackoverflow.com/questions/61845181/how-to-use-bind-value-in-a-dynamic-form
-    //https://github.com/lucianbumb/BlazorDynamicForm/blob/master/BlazorDynamicForm/Pages/DynamicField.razor
-    BlazorShared.Models.Questionaire _questionaire = new BlazorShared.Models.Questionaire();
 
-    List<BlazorShared.Models.Questionaire> Questionaires = new List<BlazorShared.Models.Questionaire>();
+    [Parameter]
+    public Guid InvitationId { get; set; }
+
+    [Parameter]
+    public bool IsInternalAssessment { get; set; }
+
+    //https://stackoverflow.com/questions/61845181/how-to-use-bind-value-in-a-dynamic-form
+    //https://github.com/lucianbumb/BlazorDynamicForm/blob/master/BlazorDynamicForm/Pages/DynamicField.razor
+    BlazorShared.Models.QuestionaireDto _questionaire = new BlazorShared.Models.QuestionaireDto();
+
+    List<BlazorShared.Models.QuestionaireDto> Questionaires = new List<BlazorShared.Models.QuestionaireDto>();
+
+    private BlazorShared.Models.QuestionaireDto Questionaire = new BlazorShared.Models.QuestionaireDto();
 
     void OnValueChanged(object e, string prop)
     {
@@ -41,12 +96,37 @@
 
     protected async override Task OnInitializedAsync()
     {
-        Questionaires = await questionaireService.Search(new QuestionaireSearchRequest());
-        _questionaire = Questionaires.FirstOrDefault();
+        var invitation = await _eventService.GetInvitation(InvitationId);
+        _questionaire = invitation.Questionaire;
+        //Questionaires = await questionaireService.Search(new QuestionaireSearchRequest());
+        //_questionaire = Questionaires.FirstOrDefault();
     }
 
-    public void OnClick()
+    public async void Submit()
     {
+
+        var parameters = new DialogParameters();
+        parameters.Add("ContentText", "Are you sure you want to submit the response? The buyer will be notified by email of your bid. If you need to make any changes you can retract your bid before End time and edit it.");
+        parameters.Add("ButtonText", "Yes");
+        parameters.Add("Color", Color.Success);
+
+        var dialogResult = DialogService.Show<GenericDialog>("Confirm", parameters);
+        var result = await dialogResult.Result;
+        if (!result.Cancelled)
+        {
+            try
+            {
+                await _eventService.SubmitResponse(InvitationId, _questionaire);
+
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"{ex}", MudBlazor.Severity.Error);
+            }
+
+        }
+
+
 
 
     }

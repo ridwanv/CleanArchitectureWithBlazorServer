@@ -9,7 +9,7 @@ public class DashboardSettings
 
     public string Version { get; set; }="6.0.2";
     public string App { get; set; } = "Dashboard";
-    public string AppName { get; set; } = "Admin Dashboard";
+    public string AppName { get; set; } = "Supplier Manager";
     public string AppFlavor { get; set; } = String.Empty;
     public string AppFlavorSubscript { get; set; } = String.Empty;
 

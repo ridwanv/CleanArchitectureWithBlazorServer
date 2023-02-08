@@ -11,6 +11,7 @@ public class MenuService : IMenuService
         new MenuSectionModel
         {
             Title = "Application",
+            Roles=new string[]{ RoleConstants.AdministratorRole },
             SectionItems = new List<MenuSectionItemModel>
             {
                 new()
@@ -166,6 +167,44 @@ public class MenuService : IMenuService
                             PageStatus = PageStatus.ComingSoon,
                             Target="_blank"
 
+                        }
+                    }
+                }
+
+            }
+        },
+
+       new MenuSectionModel
+        {
+            Title = "SUPPLIER",
+            Roles=new string[]{ RoleConstants.Supplier },
+            SectionItems = new List<MenuSectionItemModel>
+            {
+                new()
+                {
+                    IsParent = true,
+                    Title = "Events",
+                    Icon = Icons.Material.Filled.Devices,
+                    MenuItems = new List<MenuSectionSubItemModel>
+                    {   new()
+                        {
+                            Title = "Invitations",
+                            Href = "/system/picklist",
+                            PageStatus = PageStatus.Completed
+                        }
+                    }
+                },
+                new()
+                {
+                    IsParent = true,
+                    Title = "Request For Information",
+                    Icon = Icons.Material.Filled.Devices,
+                    MenuItems = new List<MenuSectionSubItemModel>
+                    {   new()
+                        {
+                            Title = "Information Requests",
+                            Href = "/system/picklist",
+                            PageStatus = PageStatus.Completed
                         }
                     }
                 }

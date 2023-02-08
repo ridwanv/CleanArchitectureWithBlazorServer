@@ -3,13 +3,13 @@
 @using BlazorShared.Services
 @inject ISupplierService _supplierService
 @inherits MudComponentBase
-@inject IStringLocalizer<BlazorShared.Models.Question> L
+@inject IStringLocalizer<BlazorShared.Models.QuestionDto> L
 @using BlazorShared.Models;
 <MudDialog>
     <DialogContent>
 
          <MudPaper Class="pa-4">
-            <MudTable ServerData="@(new Func<TableState, Task<TableData<Supplier>>>(ServerReload))"
+            <MudTable ServerData="@(new Func<TableState, Task<TableData<SupplierDto>>>(ServerReload))"
                   FixedHeader="true"
                   FixedFooter="true"
                   Virtualize="true"
@@ -66,9 +66,9 @@
     MudForm? _form;
     [CascadingParameter]
     MudDialogInstance MudDialog { get; set; } = default!;
-    private MudTable<Supplier> _table = default!;
+    private MudTable<SupplierDto> _table = default!;
     private bool showTechnicalQuestionOptions; 
-    private HashSet<Supplier> _selectedItems = new HashSet<Supplier>();
+    private HashSet<SupplierDto> _selectedItems = new HashSet<SupplierDto>();
 
     public void AddSupplier()
     {
@@ -76,12 +76,12 @@
     }
 
 
-    [EditorRequired] [Parameter] public List <BlazorShared.Models.Supplier> Suppliers { get; set; } = null!;
+    [EditorRequired] [Parameter] public List <BlazorShared.Models.SupplierDto> Suppliers { get; set; } = null!;
 
-    private async Task<TableData<Supplier>> ServerReload(TableState state)
+    private async Task<TableData<SupplierDto>> ServerReload(TableState state)
     {
         var suppliers = await _supplierService.SearchSuppliers(new SupplierSearchRequest() { });
-        return new TableData<Supplier>() {TotalItems = 1, Items = suppliers};
+        return new TableData<SupplierDto>() {TotalItems = 1, Items = suppliers};
         //var result = new TableData<PersonIdentification>() { Items = personIdentifications, TotalItems = 10 };
         //return Task.FromResult<TableData<PersonIdentification>>(result);
 

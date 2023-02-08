@@ -8,8 +8,8 @@ using BlazorShared.Models;
 namespace BlazorShared.Services;
 public  interface IProjectService
 {
-    Task<List<Project>> Search(ProjectSearchRequest projectSearchRequest);
-    Task<Project> Retrieve(Guid id);
+    Task<List<ProjectDto>> Search(ProjectSearchRequest projectSearchRequest);
+    Task<ProjectDto> Retrieve(Guid id);
 
-    Task<Project> Create(Project supplierCreateRequest);
+    Task<ProjectDto> Create(ProjectDto supplierCreateRequest);
 }

@@ -6,14 +6,14 @@ using CleanArchitecture.Blazor.Application.Features.Customers.Caching;
 
 namespace CleanArchitecture.Blazor.Application.Features.Customers.Queries.GetAll;
 
-    public class GetAllCustomersQuery : IRequest<IEnumerable<CustomerDto>>, ICacheable
+    public class GetAllSuppliersQuery : IRequest<IEnumerable<CustomerDto>>, ICacheable
     {
        public string CacheKey => CustomerCacheKey.GetAllCacheKey;
        public MemoryCacheEntryOptions? Options => CustomerCacheKey.MemoryCacheEntryOptions;
     }
     
     public class GetAllCustomersQueryHandler :
-         IRequestHandler<GetAllCustomersQuery, IEnumerable<CustomerDto>>
+         IRequestHandler<GetAllSuppliersQuery, IEnumerable<CustomerDto>>
     {
         private readonly IApplicationDbContext _context;
         private readonly IMapper _mapper;
@@ -30,7 +30,7 @@ namespace CleanArchitecture.Blazor.Application.Features.Customers.Queries.GetAll
             _localizer = localizer;
         }
 
-        public async Task<IEnumerable<CustomerDto>> Handle(GetAllCustomersQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<CustomerDto>> Handle(GetAllSuppliersQuery request, CancellationToken cancellationToken)
         {
             // TODO: Implement GetAllCustomersQueryHandler method 
             var data = await _context.Customers

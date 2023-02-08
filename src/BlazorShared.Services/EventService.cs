@@ -1,5 +1,6 @@
 using BlazorShared.Events;
 using BlazorShared.Models;
+using CleanArchitecture.Blazor.Application.Common.Interfaces;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using EasyCaching.Core;
 using MediatR;
@@ -13,25 +14,28 @@ public class EventService : IEventService
     private readonly IEasyCachingProviderFactory _factory;
     private readonly IEasyCachingProvider _provider;
     private readonly IPublisher _publisher;
+    private readonly IApplicationDbContext _context;
 
 
-    public EventService(IEasyCachingProviderFactory factory, IPublisher publisher)
+    public EventService(IEasyCachingProviderFactory factory, IPublisher publisher, IApplicationDbContext context)
     {
         _factory = factory;
         _provider = _factory.GetCachingProvider("default");
         _publisher = publisher;
+        _context = context;
     }
 
 
          
-    public async Task<Event> Create(Event request)
+    public async Task<EventDto> Create(EventDto request)
     {
+       
         var e = await Retrieve(request.Id);
         if (e != null)
             return await Update(request);
 
         string cacheKey = "";
-        await _publisher.Publish(new CreatedEvent<Event>(request));
+        await _publisher.Publish(new CreatedEvent<EventDto>(request));
 
         //foreach (var invite in request.Invitations)
         //{
@@ -54,53 +58,64 @@ public class EventService : IEventService
 
 
         cacheKey = $"event:{request.Id}";
-        _provider.Set<Models.Event>(cacheKey, request, new TimeSpan(1, 0, 0));
+        _provider.Set<Models.EventDto>(cacheKey, request, new TimeSpan(1, 0, 0));
         return request;
     }
 
-    public async Task<Invitation> GetInvitation(Guid id)
+    public async Task<InvitationDto> GetInvitation(Guid id)
     {
         string cacheKey = $"invitation:{id}";
-        var results = await _provider.GetAsync<Models.Invitation>(cacheKey);
+        var results = await _provider.GetAsync<Models.InvitationDto>(cacheKey);
+        if(results.HasValue)
+        {
+            cacheKey = $"response:{id}";
+            var questionaire = _provider.GetAsync<Models.QuestionaireDto>(cacheKey).Result;
+            if (questionaire.HasValue)
+                results.Value.Questionaire = questionaire.Value;
+        }
         return results.Value;
     }
 
-    public async Task<Event> Publish(Guid id)
+    public async Task<EventDto> Publish(Guid id)
     {
         string cacheKey = $"event:{id}";
-        var eventre = await _provider.GetAsync<Models.Event>(cacheKey);
+        var eventre = await _provider.GetAsync<Models.EventDto>(cacheKey);
       
         return eventre.Value;
     }
 
-    public async Task<Event> Retrieve(Guid id)
+    public async Task<EventDto> Retrieve(Guid id)
     {
         string cacheKey = $"event:{id}";
-        var results =await  _provider.GetAsync<Models.Event>(cacheKey);
-        cacheKey = $"response:{results.Value.Questionaire.QuestionaireId}";
-        foreach (var invite in results.Value.Invitations)
-        {
-            cacheKey = $"response:{invite.Id}";
-            var questionaire = _provider.GetAsync<Models.Questionaire>(cacheKey).Result;
-            if (questionaire.HasValue)
-                invite.Questionaire = questionaire.Value;
-        }
+        var results =await  _provider.GetAsync<Models.EventDto>(cacheKey);
 
-        return results.Value;
+        if (results.HasValue)
+        {
+            foreach (var invite in results.Value.Invitations)
+            {
+                cacheKey = $"response:{invite.Id}";
+                var questionaire = _provider.GetAsync<Models.QuestionaireDto>(cacheKey).Result;
+                if (questionaire.HasValue)
+                    invite.Questionaire = questionaire.Value;
+            }
+            return results.Value;
+        }
+        return null;
+        
     }
 
-    public async Task<Questionaire> SubmitResponse(Guid InvitationId, Questionaire questionaire)
+    public async Task<QuestionaireDto> SubmitResponse(Guid InvitationId, QuestionaireDto questionaire)
     {
         string cacheKey = $"response:{InvitationId}";
-        _provider.Set<Models.Questionaire>(cacheKey, questionaire, new TimeSpan(1, 0, 0));
+        _provider.Set<Models.QuestionaireDto>(cacheKey, questionaire, new TimeSpan(1, 0, 0));
         return questionaire;
     }
 
-    public async Task<List<Event>> Search(EventSearchRequest eventSearchRequest)
+    public async Task<List<EventDto>> Search(EventSearchRequest eventSearchRequest)
     {
-        var projects = new List<Event>();
+        var projects = new List<EventDto>();
 
-        var results = await _provider.GetByPrefixAsync<Models.Event>("event");
+        var results = await _provider.GetByPrefixAsync<Models.EventDto>("event");
 
         foreach (var item in results.Values)
         {
@@ -111,7 +126,7 @@ public class EventService : IEventService
         return projects;
     }
 
-    public async Task<Event> Update(Event eventRequest)
+    public async Task<EventDto> Update(EventDto eventRequest)
     {
         string cacheKey = $"event:{eventRequest.Id}";
         var eve = await Retrieve(eventRequest.Id);
@@ -132,15 +147,15 @@ public class EventService : IEventService
                     invite.InvitationStatus = InvitationStatus.InvitationSent;
                     invite.Questionaire = eventRequest.Questionaire;
                     cacheKey = $"invitation:{invite.Id}";
-                    _provider.Set<Models.Invitation>(cacheKey, invite, new TimeSpan(1, 0, 0));
-                    await _publisher.Publish(new CreatedEvent<Invitation>(invite));
+                    _provider.Set<Models.InvitationDto>(cacheKey, invite, new TimeSpan(1, 0, 0));
+                    await _publisher.Publish(new CreatedEvent<InvitationDto>(invite));
                 }
 
             }
 
         }
        cacheKey = $"event:{eventRequest.Id}";
-        _provider.Set<Models.Event>(cacheKey, eve, new TimeSpan(1, 0, 0));
+        _provider.Set<Models.EventDto>(cacheKey, eve, new TimeSpan(1, 0, 0));
         return eve;
 
     }

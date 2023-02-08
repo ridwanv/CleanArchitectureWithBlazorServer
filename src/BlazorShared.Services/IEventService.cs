@@ -8,16 +8,16 @@ using BlazorShared.Models;
 namespace BlazorShared.Services;
 public  interface IEventService
 {
-    Task<List<Event>> Search(EventSearchRequest eventSearchRequest);
-    Task<Event> Retrieve(Guid id);
+    Task<List<EventDto>> Search(EventSearchRequest eventSearchRequest);
+    Task<EventDto> Retrieve(Guid id);
 
-    Task<Event> Create(Event eventRequest);
+    Task<EventDto> Create(EventDto eventRequest);
 
-    Task<Event> Update(Event eventRequest);
+    Task<EventDto> Update(EventDto eventRequest);
 
-    Task<Invitation> GetInvitation(Guid id);
+    Task<InvitationDto> GetInvitation(Guid id);
 
-    Task<Event> Publish(Guid id);
+    Task<EventDto> Publish(Guid id);
 
-    Task<Questionaire> SubmitResponse(Guid invitationId, Questionaire questionaire);
+    Task<QuestionaireDto> SubmitResponse(Guid invitationId, QuestionaireDto questionaire);
 }

@@ -1,6 +1,6 @@
-﻿@layout UnauthenticatedLayout
+﻿@*@layout UnauthenticatedLayout*@
 @page "/response/edit/{invitationId:guid}"
-@attribute [AllowAnonymous]
+
 @using BlazorComponents.Components
 @using BlazorShared.Models
 @using BlazorShared.Services
@@ -39,31 +39,11 @@
                                         <MudIconButton Icon="@Icons.Material.Filled.Info" Color="Color.Default" />
                                     </CardHeaderActions>
                                 </MudCardHeader>
+
                                 <QuestionAnswer Question="Self Assessment" AnswerType="@item.AnswerType"> </QuestionAnswer>
-
-
-                                @if(item is AssessmentQuestion assessmentQuestion)
-                                {
-                                    <MudGrid>  
-                                        <MudItem xs="2">
-                                            <MudSelect T="Assessment" Label="Internal Assessment" AnchorOrigin="Origin.BottomCenter"   @bind-Value="assessmentQuestion.InternalAssessment">
-                                                          <MudSelectItem T="Assessment"  Value="Assessment.NotApplicable"/>
-                                                          <MudSelectItem T="Assessment"  Value="Assessment.DoNotComply"/>
-                                                          <MudSelectItem T="Assessment"  Value="Assessment.PartiallyComply"/>
-                                                          <MudSelectItem T="Assessment"  Value="Assessment.FullyComply"/>
-                                                </MudSelect>
-                                        </MudItem>
-                                        <MudItem xs="6">
-                                            <MudTextField T="string" Label="Answer/Notes" Variant="Variant.Outlined" @bind-Value="@assessmentQuestion.InternalNote" Lines="1" />
-                                        </MudItem>
-                                    </MudGrid>
-                                                 
-                                        @*        <h5> @assessmentQuestion.Score</h5>*@
-                                
-                                }
-                                   
-
                              </MudCard>
+
+
        
                         }
                          </MudItem>
@@ -85,11 +65,11 @@
 
     //https://stackoverflow.com/questions/61845181/how-to-use-bind-value-in-a-dynamic-form
     //https://github.com/lucianbumb/BlazorDynamicForm/blob/master/BlazorDynamicForm/Pages/DynamicField.razor
-    BlazorShared.Models.Questionaire _questionaire = new BlazorShared.Models.Questionaire();
+    BlazorShared.Models.QuestionaireDto _questionaire = new BlazorShared.Models.QuestionaireDto();
 
-    List<BlazorShared.Models.Questionaire> Questionaires = new List<BlazorShared.Models.Questionaire>();
+    List<BlazorShared.Models.QuestionaireDto> Questionaires = new List<BlazorShared.Models.QuestionaireDto>();
 
-    private BlazorShared.Models.Questionaire Questionaire = new BlazorShared.Models.Questionaire();
+    private BlazorShared.Models.QuestionaireDto Questionaire = new BlazorShared.Models.QuestionaireDto();
 
     void OnValueChanged(object e, string prop)
     {

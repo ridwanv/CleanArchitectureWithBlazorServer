@@ -26,6 +26,16 @@ public class ApplicationDbContext : IdentityDbContext<
     {
         _auditableEntitySaveChangesInterceptor = auditableEntitySaveChangesInterceptor;
     }
+
+    public DbSet<Supplier> Suppliers { get; set; }
+    public DbSet<Contact> Contacts { get; set; }
+    public DbSet<AnswerFormat> AnswerFormats { get; set; }
+    public DbSet<ShortText> ShortTextAnswerFormats { get; set; }
+    public DbSet<Evaluation> EvaluationAnswerFormats { get; set; }
+
+    public DbSet<Invitation> Invitations { get; set; }
+    public DbSet<Address> Addresses { get; set; }
+    public DbSet<Event> Events { get; set; }
     public DbSet<Tenant> Tenants { get; set; }
     public DbSet<Logger> Loggers { get; set; }
     public DbSet<AuditTrail> AuditTrails { get; set; }

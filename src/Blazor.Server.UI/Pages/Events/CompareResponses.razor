@@ -17,7 +17,7 @@
 <MudGrid>
     <MudItem xs="12">
         <MudPaper Class="pa-4">
-            <h3>Selected Suppliers</h3>
+            <h3>Responses</h3>
             <MudTable Items="@model.Questionaire.Questions" Dense="true" Hover="true"
                        SortLabel="Sort By">
 
@@ -34,18 +34,18 @@
                 </HeaderContent>
                 <RowTemplate>
 
-                    @foreach (var question in model.Questionaire.Questions)
+                        <MudTd DataLabel="Category">@context.Category</MudTd>
+                        <MudTd DataLabel="Question">@context.QuestionLabel</MudTd>
+                    @foreach (var item in model.Invitations)
                     {
-                        <MudTd DataLabel="Category">@question.Category</MudTd>
-                        <MudTd DataLabel="Question">@question.QuestionLabel</MudTd>
+                        <MudTd>
+                            @if(item.Questionaire.Questions.FirstOrDefault(c=>c.QuestionId == context.QuestionId)!=null)
+                                @item.Questionaire.Questions.FirstOrDefault(x=>x.QuestionId == context.QuestionId).AnswerType.ToString()
 
-@*                        @foreach (var invite in model.Invitations)
-                         {
-                            
-                             var questionResponse = invite.Questionaire.Questions.FirstOrDefault(x=>x.QuestionId == question.QuestionId);
-                             <MudTd> @questionResponse.AnswerTypeEnum </MudTd>
-                         }*@
+                           
+                        </MudTd>
                     }
+
 
                 </RowTemplate>
             </MudTable>
@@ -62,10 +62,9 @@
     [Parameter]
     public Guid EventId { get; set; }
 
-    [Parameter]
-    public bool IsInternalAssessment { get; set; }
 
-    BlazorShared.Models.Event model = new BlazorShared.Models.Event();
+
+    BlazorShared.Models.EventDto model = new BlazorShared.Models.EventDto();
 
 
 
@@ -77,37 +76,7 @@
     protected async override Task OnInitializedAsync()
     {
         model = await _eventService.Retrieve(EventId);
-
-        //Questionaires = await questionaireService.Search(new QuestionaireSearchRequest());
-        //_questionaire = Questionaires.FirstOrDefault();
     }
 
-    public async void   Submit()
-    {
 
-        var parameters = new DialogParameters();
-        parameters.Add("ContentText", "Are you sure you want to submit the response? The buyer will be notified by email of your bid. If you need to make any changes you can retract your bid before End time and edit it.");
-        parameters.Add("ButtonText", "Yes");
-        parameters.Add("Color", Color.Success);
-
-        var dialogResult = DialogService.Show<GenericDialog>("Confirm", parameters);
-        var result = await dialogResult.Result;
-        if (!result.Cancelled)
-        {
-            try
-            {
-                //await _eventService.SubmitResponse(_questionaire);
-
-            }
-            catch (Exception ex)
-            {
-                Snackbar.Add($"{ex}", MudBlazor.Severity.Error);
-            }
-
-        }
-
-
-        
-
-    }
 }

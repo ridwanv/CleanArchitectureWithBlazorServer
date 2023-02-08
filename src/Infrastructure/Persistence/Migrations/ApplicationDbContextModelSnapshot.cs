@@ -17,10 +17,70 @@ namespace CleanArchitecture.Blazor.Infrastructure.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.7")
+                .HasAnnotation("ProductVersion", "6.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Address", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Line1")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Line2")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Addresses");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.AnswerFormat", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("AnswerDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("AnswerMotivation")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("AnswerTypeEnum")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AnswerFormats");
+                });
 
             modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Audit.AuditTrail", b =>
                 {
@@ -59,6 +119,41 @@ namespace CleanArchitecture.Blazor.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("AuditTrails");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Contact", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EmailAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FullName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Position")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Contacts");
                 });
 
             modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Customer", b =>
@@ -136,6 +231,91 @@ namespace CleanArchitecture.Blazor.Infrastructure.Persistence.Migrations
                     b.HasIndex("TenantId");
 
                     b.ToTable("Documents");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Event", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("EventName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("EventStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EventType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("QuestionaireId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionaireId");
+
+                    b.ToTable("Events");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Invitation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("EventId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("QuestionaireId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("QuestionaireId");
+
+                    b.HasIndex("SupplierId");
+
+                    b.ToTable("Invitations");
                 });
 
             modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.KeyValue", b =>
@@ -260,6 +440,124 @@ namespace CleanArchitecture.Blazor.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Question", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AnswerTypeEnum")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("AnswerTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsMandatory")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("QuestionLabel")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("SectionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AnswerTypeId");
+
+                    b.HasIndex("SectionId");
+
+                    b.ToTable("Question");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Questionaire", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Questionaire");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Section", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("QuestionaireId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("SectionName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionaireId");
+
+                    b.ToTable("Section");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("Section");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Supplier", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Category")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Comments")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("PhysicalAddressId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RiskRating")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TaxReferenceNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PhysicalAddressId");
+
+                    b.ToTable("Suppliers");
                 });
 
             modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Tenant", b =>
@@ -417,6 +715,9 @@ namespace CleanArchitecture.Blazor.Infrastructure.Persistence.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("SupplierId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("TenantId")
                         .HasColumnType("nvarchar(max)");
 
@@ -531,6 +832,75 @@ namespace CleanArchitecture.Blazor.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ContactSupplier", b =>
+                {
+                    b.Property<Guid>("ContactsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SuppliersId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ContactsId", "SuppliersId");
+
+                    b.HasIndex("SuppliersId");
+
+                    b.ToTable("ContactSupplier");
+                });
+
+            modelBuilder.Entity("EventSupplier", b =>
+                {
+                    b.Property<Guid>("EventsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SuppliersId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("EventsId", "SuppliersId");
+
+                    b.HasIndex("SuppliersId");
+
+                    b.ToTable("EventSupplier");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Evaluation", b =>
+                {
+                    b.HasBaseType("CleanArchitecture.Blazor.Domain.Entities.AnswerFormat");
+
+                    b.Property<int>("InternalAssessment")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SelfAssessment")
+                        .HasColumnType("int");
+
+                    b.ToTable("AnswerFormatEvaluations");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.ShortText", b =>
+                {
+                    b.HasBaseType("CleanArchitecture.Blazor.Domain.Entities.AnswerFormat");
+
+                    b.Property<string>("Answer")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable("AnswerFormatShortTexts");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.SubSection", b =>
+                {
+                    b.HasBaseType("CleanArchitecture.Blazor.Domain.Entities.Section");
+
+                    b.Property<Guid?>("SectionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasIndex("SectionId");
+
+                    b.HasDiscriminator().HasValue("SubSection");
+                });
+
             modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Document", b =>
                 {
                     b.HasOne("CleanArchitecture.Blazor.Domain.Entities.Tenant", "Tenant")
@@ -538,6 +908,71 @@ namespace CleanArchitecture.Blazor.Infrastructure.Persistence.Migrations
                         .HasForeignKey("TenantId");
 
                     b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Event", b =>
+                {
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.Questionaire", "Questionaire")
+                        .WithMany()
+                        .HasForeignKey("QuestionaireId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Questionaire");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Invitation", b =>
+                {
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.Event", null)
+                        .WithMany("Invitations")
+                        .HasForeignKey("EventId");
+
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.Questionaire", "Questionaire")
+                        .WithMany()
+                        .HasForeignKey("QuestionaireId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.Supplier", "Supplier")
+                        .WithMany("Invitations")
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Questionaire");
+
+                    b.Navigation("Supplier");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Question", b =>
+                {
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.AnswerFormat", "AnswerType")
+                        .WithMany()
+                        .HasForeignKey("AnswerTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.Section", null)
+                        .WithMany("Questions")
+                        .HasForeignKey("SectionId");
+
+                    b.Navigation("AnswerType");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Section", b =>
+                {
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.Questionaire", null)
+                        .WithMany("Sections")
+                        .HasForeignKey("QuestionaireId");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Supplier", b =>
+                {
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.Address", "PhysicalAddress")
+                        .WithMany()
+                        .HasForeignKey("PhysicalAddressId");
+
+                    b.Navigation("PhysicalAddress");
                 });
 
             modelBuilder.Entity("CleanArchitecture.Blazor.Infrastructure.Identity.ApplicationRoleClaim", b =>
@@ -601,6 +1036,83 @@ namespace CleanArchitecture.Blazor.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ContactSupplier", b =>
+                {
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.Contact", null)
+                        .WithMany()
+                        .HasForeignKey("ContactsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.Supplier", null)
+                        .WithMany()
+                        .HasForeignKey("SuppliersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("EventSupplier", b =>
+                {
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.Event", null)
+                        .WithMany()
+                        .HasForeignKey("EventsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.Supplier", null)
+                        .WithMany()
+                        .HasForeignKey("SuppliersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Evaluation", b =>
+                {
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.AnswerFormat", null)
+                        .WithOne()
+                        .HasForeignKey("CleanArchitecture.Blazor.Domain.Entities.Evaluation", "Id")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.ShortText", b =>
+                {
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.AnswerFormat", null)
+                        .WithOne()
+                        .HasForeignKey("CleanArchitecture.Blazor.Domain.Entities.ShortText", "Id")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.SubSection", b =>
+                {
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.Section", null)
+                        .WithMany("SubSections")
+                        .HasForeignKey("SectionId");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Event", b =>
+                {
+                    b.Navigation("Invitations");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Questionaire", b =>
+                {
+                    b.Navigation("Sections");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Section", b =>
+                {
+                    b.Navigation("Questions");
+
+                    b.Navigation("SubSections");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Supplier", b =>
+                {
+                    b.Navigation("Invitations");
                 });
 
             modelBuilder.Entity("CleanArchitecture.Blazor.Infrastructure.Identity.ApplicationRole", b =>

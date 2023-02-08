@@ -1,8 +1,10 @@
 ﻿@page "/events/add/{projectId:guid?}"
 @page "/events/edit/{eventId:guid}"
 
+@using Blazor.Server.UI.Services.Notifications;
 @using BlazorShared.Models
 @using BlazorShared.Services
+@inject INotificationService _notificationService;
 
 @inject IEventService _eventService
 
@@ -106,6 +108,7 @@
                              EndIcon="@Icons.Filled.KeyboardArrowDown" IconColor="Color.Info" Direction="Direction.Left"
                              OffsetX="true">
                            <MudMenuItem OnClick="@(()=>OnViewResponse(context))">View Response</MudMenuItem>
+                            <MudMenuItem OnClick="@(()=>OnAssessResponse(context))">Internal Assess</MudMenuItem>
                            <MudMenuItem>Send Message</MudMenuItem>
                            <MudMenuItem>Resend Invitation</MudMenuItem>
                            <MudMenuItem>Send Email</MudMenuItem>
@@ -145,26 +148,9 @@
                     <MudTd DataLabel="Id">@context.QuestionId</MudTd>
                     <MudTd DataLabel="Question">@context.QuestionLabel</MudTd>
                      <MudTd DataLabel="Category">@context.Category</MudTd>
-                    <MudTd DataLabel="Type">@context.AnswerType </MudTd>
+                    <MudTd DataLabel="Type">@context.AnswerTypeEnum </MudTd>
                     <MudTd DataLabel="Is Mandatory">@context.IsMandatory</MudTd>
                 </RowTemplate>
-                <RowEditingTemplate>
-                    <MudTd DataLabel="Question Id">
-                        <MudTextField @bind-Value="@context.QuestionId" Required />
-                    </MudTd>
-                    <MudTd DataLabel="Question Label">
-                        <MudTextField @bind-Value="@context.QuestionLabel" Required />
-                    </MudTd>
-                    <MudTd DataLabel="Category">
-                        <MudTextField @bind-Value="@context.Category" Required />
-                    </MudTd>
-                    <MudTd DataLabel="Answer Type">
-                        <MudTextField @bind-Value="@context.AnswerTypeEnum" Required />
-                    </MudTd>
-                    <MudTd DataLabel="IsMandatory">
-                        <MudTextField @bind-Value="@context.IsMandatory" Required />
-                    </MudTd>
-                </RowEditingTemplate>
             </MudTable>  
             <MudButton ButtonType="ButtonType.Button" @onclick='() => AddQuestion("General")'> Add Question</MudButton>
             <MudButton ButtonType="ButtonType.Button" @onclick='() => AddQuestion("Assessment")'> Add AssessmentQuestion</MudButton>
@@ -187,16 +173,16 @@
 @code 
 {
     MudForm form = default!;
-    private MudTable<BlazorShared.Models.Question> _table = default!;
-    private MudTable<BlazorShared.Models.Supplier> _tableSuppliers = default!;
-    private MudTable<BlazorShared.Models.Invitation> _tableInvitations = default!;
+    private MudTable<BlazorShared.Models.QuestionDto> _table = default!;
+    private MudTable<BlazorShared.Models.SupplierDto> _tableSuppliers = default!;
+    private MudTable<BlazorShared.Models.InvitationDto> _tableInvitations = default!;
 
     private MudButton _saveButton = default!;
-    public Event model { get; set; } = new Event();
+    public EventDto model { get; set; } = new EventDto();
 
-    public BlazorShared.Models.Question SelectedQuestion { get; set; } = new();
-    public BlazorShared.Models.Supplier SelectedSupplier { get; set; } = new();
-    public BlazorShared.Models.Invitation SelectedInvitation { get; set; } = new();
+    public BlazorShared.Models.QuestionDto SelectedQuestion { get; set; } = new();
+    public BlazorShared.Models.SupplierDto SelectedSupplier { get; set; } = new();
+    public BlazorShared.Models.InvitationDto SelectedInvitation { get; set; } = new();
     [Inject]
     private ISender _mediator { get; set; } = default!;
     [Parameter]
@@ -237,9 +223,9 @@
 
     public async void AddQuestion(string questionType)
     {
-        var questionModel = new BlazorShared.Models.Question();
+        var questionModel = new BlazorShared.Models.QuestionDto();
         if (questionType == "Assessment")
-            questionModel = new AssessmentQuestion();
+            questionModel = new AssessmentQuestionDto();
 
         var parameters = new DialogParameters
             {
@@ -250,6 +236,7 @@
         var state = await dialog.Result;
         if (!state.Cancelled)
         {
+            questionModel = (QuestionDto)state.Data;
             model.Questionaire.AddQuestion(questionModel);
             await  _table.ReloadServerData();
             Snackbar.Add($"{ToastText.CREATESUCCESS}", MudBlazor.Severity.Info);
@@ -258,7 +245,7 @@
 
     public async void AddSupplier()
     {
-        var suppliersModel = new List<Supplier>();
+        var suppliersModel = new List<SupplierDto>();
 
 
         var parameters = new DialogParameters
@@ -271,11 +258,11 @@
 
         if (!dialogResult.Cancelled)
         {
-            suppliersModel = (List<Supplier>)dialogResult.Data;
+            suppliersModel = (List<SupplierDto>)dialogResult.Data;
             //model.Suppliers.AddRange(suppliersModel);
             foreach (var supplier in suppliersModel)
             {
-                model.Invitations.Add(new Invitation() {Supplier = supplier });
+                model.Invitations.Add(new InvitationDto() {Supplier = supplier });
             }
             await  _table.ReloadServerData();
             Snackbar.Add($"{ToastText.CREATESUCCESS}", MudBlazor.Severity.Info);
@@ -291,7 +278,12 @@
     }
 
 
-    public void OnViewResponse(Invitation invitation)
+    public void OnAssessResponse(InvitationDto invitation)
+    {
+        _navigationManager.NavigateTo($"/response/assessment/{invitation.Id}");
+    }
+
+    public void OnViewResponse(InvitationDto invitation)
     {
         _navigationManager.NavigateTo($"/response/edit/{invitation.Id}");
     }
@@ -303,6 +295,7 @@
         parameters.Add("ContentText", "Are you sure you want to publish this event? All suppliers will receive an invitation email to this event?");
         parameters.Add("ButtonText", "Yes");
         parameters.Add("Color", Color.Success);
+  
 
         var dialogResult = DialogService.Show<GenericDialog>("Confirm", parameters);
         var result = await dialogResult.Result;

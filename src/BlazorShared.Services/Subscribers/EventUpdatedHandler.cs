@@ -8,9 +8,9 @@ using BlazorShared.Models;
 using MediatR;
 
 namespace BlazorShared.Services.Subscribers;
-public class EventUpdatedHandler : INotificationHandler<CreatedEvent<Event>>
+public class EventUpdatedHandler : INotificationHandler<CreatedEvent<EventDto>>
 {
-    public Task Handle(CreatedEvent<Event> notification, CancellationToken cancellationToken)
+    public Task Handle(CreatedEvent<EventDto> notification, CancellationToken cancellationToken)
     {
         SendEmails();
         return Task.CompletedTask;

@@ -7,6 +7,11 @@
       <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Features\Suppliers\**" />
+    <EmbeddedResource Remove="Features\Suppliers\**" />
+    <None Remove="Features\Suppliers\**" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="11.0.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
     <PackageReference Include="FluentValidation" Version="11.2.2" />

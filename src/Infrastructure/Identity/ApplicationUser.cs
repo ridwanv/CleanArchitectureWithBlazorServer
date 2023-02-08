@@ -12,6 +12,10 @@ public class ApplicationUser : IdentityUser
     public string? Provider { get; set; } = "Local";
     public string? TenantId { get; set; }
     public string? TenantName { get; set; }
+
+
+    public Guid? SupplierId { get; set; }
+
     [Column(TypeName = "text")]
     public string? ProfilePictureDataUrl { get; set; }
     public bool IsActive { get; set; }

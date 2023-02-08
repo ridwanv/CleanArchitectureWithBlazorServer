@@ -7,7 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Components\CreateBankAccount.razor" />
     <Content Remove="Components\EvaluationQuestion.razor" />
+    <Content Remove="Components\IdentityCard.razor" />
+    <Content Remove="Components\ResultIcon.razor" />
+    <Content Remove="Components\ViewBankAccount.razor" />
     <Content Remove="Pages\Suppliers\Index.razor" />
   </ItemGroup>
 

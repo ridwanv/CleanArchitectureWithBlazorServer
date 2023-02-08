@@ -8,7 +8,7 @@ using BlazorShared.Models;
 namespace BlazorShared.Services;
 public interface IQuestionaireService
 {
-    Task<List<Questionaire>> Search(QuestionaireSearchRequest questionaireSearchRequest);
+    Task<List<QuestionaireDto>> Search(QuestionaireSearchRequest questionaireSearchRequest);
 
-    Task<Questionaire> Get(Guid questionaireId);
+    Task<QuestionaireDto> Get(Guid questionaireId);
 }

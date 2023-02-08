@@ -42,7 +42,7 @@ public class ApprovalWorkflowStep: WorkflowStep
 
 public class InformationWorkflowStep : WorkflowStep
 {
-    public Questionaire Questionaire { get; set; }
+    public QuestionaireDto Questionaire { get; set; }
 }
 
 public enum StepType

@@ -13,7 +13,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <OpenApiReference Include="..\..\..\..\..\Downloads\Party API V1.0.openapi.yaml" CodeGenerator="NSwagCSharp" Link="OpenAPIs\Party API V1.0.openapi.yaml" />
+    <Compile Remove="Models\BankVerification.cs" />
+    <Compile Remove="Models\Batch.cs" />
+    <Compile Remove="Models\FICA.cs" />
+    <Compile Remove="Models\PersonIdentification.cs" />
+    <Compile Remove="Models\PersonIdentificationRequest.cs" />
+    <Compile Remove="Models\PersonIdentificationSearchModel.cs" />
+    <Compile Remove="Models\PersonVerificationRequest.cs" />
+    <Compile Remove="Models\Workflow.cs" />
+    <Compile Remove="Validators\BankAccountFluentValidator.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,6 +53,11 @@
   <ItemGroup>
     <ProjectReference Include="..\Application\Application.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Connected Services\" />
+    <Folder Include="Validators\" />
   </ItemGroup>
 
 </Project>

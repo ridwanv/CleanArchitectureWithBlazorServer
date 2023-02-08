@@ -69,9 +69,9 @@
     
     public SupplierCreateRequest model { get; set; } = default!;
 
-    public BlazorShared.Models.Contact SelectedContact { get; set; } = new();
+    public BlazorShared.Models.ContactDto SelectedContact { get; set; } = new();
 
-    private Supplier? _supplier= new();
+    private SupplierDto? _supplier= new();
 
 
 
@@ -85,6 +85,6 @@
         //}
     }
 
-    void AddContact() => model.Contacts.Add(new Contact() { FullName = "Please Conplete" });
+    void AddContact() => model.Contacts.Add(new ContactDto() { FullName = "Please Conplete" });
 
 }

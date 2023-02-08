@@ -79,15 +79,15 @@
 
 
 
-    private MudTable<BlazorShared.Models.Event> _table = default!;
+    private MudTable<BlazorShared.Models.EventDto> _table = default!;
     MudForm form = default!;
 
-    public Project model { get; set; } = default!;
+    public ProjectDto model { get; set; } = default!;
 
 
 
-    private Event? _supplier= new();
-    private Event SelectedEvent = new();
+    private EventDto? _supplier= new();
+    private EventDto SelectedEvent = new();
 
     protected override async Task OnParametersSetAsync()
     {
@@ -96,7 +96,7 @@
 
     }
 
-    private async Task OnView(Event context)
+    private async Task OnView(EventDto context)
     {
         if (context != null)
         {

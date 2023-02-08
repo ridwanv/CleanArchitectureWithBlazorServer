@@ -31,7 +31,7 @@
     MudForm? _form;
     [CascadingParameter]
     MudDialogInstance MudDialog { get; set; } = default!;
-    AddEditCustomerCommandValidator _modelValidator = new ();
+    AddEditCustomerCommandValidator _modelValidator = new();
     [EditorRequired] [Parameter] public AddEditCustomerCommand model { get; set; } = null!;
 
     async Task Submit()

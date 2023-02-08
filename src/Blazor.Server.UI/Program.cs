@@ -13,13 +13,14 @@ using BlazorShared.Services;
 using HashidsNet;
 using Hangfire;
 using Hangfire.MemoryStorage;
+using CleanArchitecture.Blazor.Application.Common.Mappings;
+using BlazorShared;
+using AutoMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
-// APPLICATION SPECIFIC SERVICES
 
-builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddSingleton(sp => new Hashids("Blazor.net"));
 builder.Services.AddHangfire(configuration => configuration
         .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
@@ -44,6 +45,11 @@ builder.Services.AddBlazorUIServices();
 builder.Services.AddInfrastructureServices(builder.Configuration)
                 .AddApplicationServices();
 
+
+// APPLICATION SPECIFIC SERVICES
+
+builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddAutoMapper(typeof(MappingProfile), typeof(SharedMappingProfile));
 var app = builder.Build();
 
 

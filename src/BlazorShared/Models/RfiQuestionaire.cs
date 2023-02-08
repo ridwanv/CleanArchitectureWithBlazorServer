@@ -15,21 +15,7 @@ public class EvaluationSection
     public List<Criteria> Criterion { get; set; } = new List<Criteria>();
 }
 
-public class Criteria:AnswerFormat
-{
-    public string Id { get; set; }
-    public string Functionality { get; set; }
-    public Priority Priority { get; set; }
-    public Assessment SelfAssessment { get; set; }
-    public Assessment InternalAssessment { get; set; }
-    public int Score { get { return 5 - (int)Priority * 3; } }
-    public int MaximumScore { get { return 5 - (int)Priority * 3; } }
 
-    public Criteria()
-    {
-        AnswerTypeEnum = AnswerTypeEnum.Evaluation;
-    }
-}
 
 public enum Priority
 {

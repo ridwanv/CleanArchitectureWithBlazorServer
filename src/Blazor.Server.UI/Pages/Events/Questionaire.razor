@@ -30,7 +30,7 @@
                                 <QuestionAnswer Question="Self Assessment" AnswerType="@item.AnswerType"> </QuestionAnswer>
 
 
-                                @if(item is AssessmentQuestion assessmentQuestion)
+                                @if(item is AssessmentQuestionDto assessmentQuestion)
                                 {
                                     <MudGrid>  
                                         <MudItem xs="2">
@@ -74,9 +74,9 @@
 
         //https://stackoverflow.com/questions/61845181/how-to-use-bind-value-in-a-dynamic-form
     //https://github.com/lucianbumb/BlazorDynamicForm/blob/master/BlazorDynamicForm/Pages/DynamicField.razor
-    BlazorShared.Models.Questionaire _questionaire = new BlazorShared.Models.Questionaire();
+    BlazorShared.Models.QuestionaireDto _questionaire = new BlazorShared.Models.QuestionaireDto();
 
-    List<BlazorShared.Models.Questionaire> Questionaires = new List<BlazorShared.Models.Questionaire>();
+    List<BlazorShared.Models.QuestionaireDto> Questionaires = new List<BlazorShared.Models.QuestionaireDto>();
 
     void OnValueChanged(object e, string prop)
     {

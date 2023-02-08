@@ -18,7 +18,7 @@
                 <MudTextField @bind-Value="model.PhoneNumber" For="@(() => model.PhoneNumber)" T="string" Label="PhoneNumber" Required="false" />
                 <MudTextField @bind-Value="model.Website" For="@(() => model.Website)" T="string" Label="Website" Required="false" />
                 <MudTextField @bind-Value="model.Comments" For="@(() => model.Comments)" T="string" Label="Notes"  Lines="5"/>
-                <MudSelect T="@BlazorShared.Models.Contact" Label="Primary Contact" Variant="Variant.Filled" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.PrimaryContact">
+                <MudSelect T="@BlazorShared.Models.ContactDto" Label="Primary Contact" Variant="Variant.Filled" AnchorOrigin="Origin.BottomCenter" @bind-Value="model.PrimaryContact">
                      @foreach (var contact in model.Contacts)
                         {
                             <MudSelectItem Value="@contact">@contact.FullName</MudSelectItem>
@@ -85,11 +85,11 @@
 
 
 @code {
-        MudForm form = default!;
-       private MudTable<BlazorShared.Models.Contact> _table = default!;
+    MudForm form = default!;
+    private MudTable<BlazorShared.Models.ContactDto> _table = default!;
     public SupplierCreateRequest model { get; set; } = new() {};
 
-    public BlazorShared.Models.Contact SelectedContact { get; set; } = new();
+    public BlazorShared.Models.ContactDto SelectedContact { get; set; } = new();
 
 
     [Inject]
@@ -100,27 +100,27 @@
 
     public async void AddContact()
     {
-            var contactModel = new BlazorShared.Models.Contact();
-            var parameters = new DialogParameters
+        var contactModel = new BlazorShared.Models.ContactDto();
+        var parameters = new DialogParameters
             {
                    { nameof(_ContactFormDialog.model),contactModel },
             };
-            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
-            var dialog = DialogService.Show<_ContactFormDialog>(string.Format("Add Contact"), parameters, options);
-            var state = await dialog.Result;
-            if (!state.Cancelled)
-            {
-                model.Contacts.Add(contactModel);
-               await  _table.ReloadServerData();
-                Snackbar.Add($"{ToastText.CREATESUCCESS}", MudBlazor.Severity.Info);
-            }
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var dialog = DialogService.Show<_ContactFormDialog>(string.Format("Add Contact"), parameters, options);
+        var state = await dialog.Result;
+        if (!state.Cancelled)
+        {
+            model.Contacts.Add(contactModel);
+            await  _table.ReloadServerData();
+            Snackbar.Add($"{ToastText.CREATESUCCESS}", MudBlazor.Severity.Info);
+        }
     }
 
 
 
-   public void Save()
-   {
-
+    public void Save()
+    {
+        _supplierService.Create(model);
     }
 
     public void Cancel()

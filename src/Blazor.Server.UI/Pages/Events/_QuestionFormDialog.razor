@@ -1,7 +1,7 @@
 ﻿@using CleanArchitecture.Blazor.Application.Features.Customers.Commands.AddEdit
 
 @inherits MudComponentBase
-@inject IStringLocalizer<BlazorShared.Models.Question> L
+@inject IStringLocalizer<BlazorShared.Models.QuestionDto> L
 @using BlazorShared.Models;
 <MudDialog>
     <DialogContent>
@@ -24,10 +24,8 @@
                      </MudSelect>
                 </MudItem> 
 
-                @if(model is AssessmentQuestion assessmentQuestion)
+                @if(model is AssessmentQuestionDto assessmentQuestion)
                 {
-                    model.AnswerTypeEnum = AnswerTypeEnum.Evaluation;
-
                         <MudItem xs="12">
                                  <MudSelect T="BlazorShared.Models.Priority" Label="Priority" AnchorOrigin="Origin.BottomCenter"   @bind-Value="assessmentQuestion.Priority">
                                                                       <MudSelectItem T="Priority"  Value="Priority.SHouldHave"/>
@@ -44,7 +42,7 @@
 
                 }
 
-                @if (model.AnswerType is MultipleChoice multipleChoice)
+                @if (model.AnswerType is MultipleChoiceDto multipleChoice)
                     {
                         <MudTable Items="multipleChoice.Choices" Dense="true" Hover="true">
                             <HeaderContent>
@@ -86,7 +84,7 @@
     private bool showMultipleChoiceOptions=false;
     private int multipleChoiceOptionCount = 0;
 
-    void AddMulipleChoiceOption(MultipleChoice multipleChoice)
+    void AddMulipleChoiceOption(MultipleChoiceDto multipleChoice)
     {
         multipleChoice.Choices.Add($"Option {multipleChoiceOptionCount.ToString()}", "test");
         multipleChoiceOptionCount++;
@@ -99,49 +97,50 @@
         switch (newValue)
         {
             case AnswerTypeEnum.ShortText:
-                model = new Question() { AnswerTypeEnum = AnswerTypeEnum.ShortText, AnswerType = new ShortText(), QuestionId = model.QuestionId, QuestionLabel = model.QuestionLabel };
-                model.AnswerType = new ShortText();
+                model = new QuestionDto() { AnswerTypeEnum = AnswerTypeEnum.ShortText, AnswerType = new ShortTextDto(), QuestionId = model.QuestionId, QuestionLabel = model.QuestionLabel };
+                model.AnswerType = new ShortTextDto();
                 break;
             case AnswerTypeEnum.MulipleChoice:
-                model = new Question() { AnswerTypeEnum = AnswerTypeEnum.MulipleChoice, AnswerType = new MultipleChoice(), QuestionId = model.QuestionId, QuestionLabel = model.QuestionLabel };
-                model.AnswerType = new MultipleChoice() { AnswerTypeEnum = AnswerTypeEnum.MulipleChoice};
+                model = new QuestionDto() { AnswerTypeEnum = AnswerTypeEnum.MulipleChoice, AnswerType = new MultipleChoiceDto(), QuestionId = model.QuestionId, QuestionLabel = model.QuestionLabel };
+                model.AnswerType = new MultipleChoiceDto() { AnswerTypeEnum = AnswerTypeEnum.MulipleChoice};
                 showMultipleChoiceOptions = true;
                 break;
             case AnswerTypeEnum.Evaluation:
-                model = new AssessmentQuestion() { AnswerTypeEnum = AnswerTypeEnum.Evaluation, AnswerType = new Criteria(), QuestionId = model.QuestionId, QuestionLabel = model.QuestionLabel };
+                model = new AssessmentQuestionDto() { AnswerTypeEnum = AnswerTypeEnum.Evaluation, QuestionId = model.QuestionId, QuestionLabel = model.QuestionLabel };
                 break;
             default:
-                model.AnswerType = new ShortText();
+                model = new QuestionDto() { AnswerTypeEnum = AnswerTypeEnum.ShortText, AnswerType = new ShortTextDto(), QuestionId = model.QuestionId, QuestionLabel = model.QuestionLabel };
+                model.AnswerType = new ShortTextDto();
                 break;
         }
     }
 
-    async void OnAnswerTypeChange(ChangeEventArgs e)
-    {
-        var answerType = (AnswerTypeEnum)e.Value;
+    //async void OnAnswerTypeChange(ChangeEventArgs e)
+    //{
+    //    var answerType = (AnswerTypeEnum)e.Value;
 
-        switch (answerType)
-        {
-            case AnswerTypeEnum.ShortText:
-                model.AnswerType = new ShortText();
-                break;
-            case AnswerTypeEnum.MulipleChoice:
-                model.AnswerType = new MultipleChoice();
-                break;
-            default:
-                model.AnswerType = new ShortText();
-                break;
-        }
+    //    switch (answerType)
+    //    {
+    //        case AnswerTypeEnum.ShortText:
+    //            model.AnswerType = new ShortText();
+    //            break;
+    //        case AnswerTypeEnum.MulipleChoice:
+    //            model.AnswerType = new MultipleChoice();
+    //            break;
+    //        default:
+    //            model.AnswerType = new ShortText();
+    //            break;
+    //    }
 
-        if(answerType == AnswerTypeEnum.Evaluation)
-        {
-            model = new AssessmentQuestion() { QuestionId = model.QuestionId,AnswerTypeEnum = model.AnswerTypeEnum,IsMandatory = model.IsMandatory,QuestionLabel = model.QuestionLabel,AnswerType = new Criteria()};
-            showTechnicalQuestionOptions = true;
-        }
-    }
+    //    if(answerType == AnswerTypeEnum.Evaluation)
+    //    {
+    //        model = new AssessmentQuestion() { QuestionId = model.QuestionId,AnswerTypeEnum = model.AnswerTypeEnum,IsMandatory = model.IsMandatory,QuestionLabel = model.QuestionLabel,AnswerType = new Criteria()};
+    //        showTechnicalQuestionOptions = true;
+    //    }
+    //}
 
 
-    [EditorRequired] [Parameter] public BlazorShared.Models.Question model { get; set; } = null!;
+    [EditorRequired] [Parameter] public BlazorShared.Models.QuestionDto model { get; set; } = null!;
 
     
 
@@ -152,7 +151,7 @@
             if (_form.IsValid)
             {
                
-                MudDialog.Close(DialogResult.Ok(true));
+                MudDialog.Close(DialogResult.Ok(model));
             }
         }
     }
