@@ -13,9 +13,11 @@ public interface IApplicationDbContext
     DbSet<AuditTrail> AuditTrails { get; set; }
     DbSet<Document> Documents { get; set; }
     DbSet<Supplier> Suppliers { get; set; }
+    DbSet<Event> Events { get; set; }
+    DbSet<Project> Projects { get; set; }
     DbSet<KeyValue> KeyValues { get; set; }
     DbSet<Product> Products { get; set; }
-    DbSet<Event> Events { get; set; }
+
     DbSet<Tenant> Tenants { get; set; }
     DbSet<Customer> Customers { get; set; }
     ChangeTracker ChangeTracker { get; }

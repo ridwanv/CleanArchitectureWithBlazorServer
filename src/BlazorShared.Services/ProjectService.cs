@@ -1,4 +1,6 @@
+using AutoMapper;
 using BlazorShared.Models;
+using CleanArchitecture.Blazor.Application.Common.Interfaces;
 using EasyCaching.Core;
 
 namespace BlazorShared.Services;
@@ -9,13 +11,21 @@ public class ProjectService : IProjectService
     private readonly IEasyCachingProviderFactory _factory;
     private readonly IEasyCachingProvider _provider;
     private readonly IEventService _eventService;
+    private readonly IApplicationDbContext _context;
+    private readonly IMapper _mapper;
 
 
-    public ProjectService(IEasyCachingProviderFactory factory,IEventService eventService)
+
+    public ProjectService(IEasyCachingProviderFactory factory,IEventService eventService, IApplicationDbContext context, IMapper mapper)
     {
         _factory = factory;
         _provider = _factory.GetCachingProvider("default");
         _eventService = eventService;
+        _context= context;
+
+        _mapper= mapper;
+
+
     }
 
 
@@ -25,6 +35,9 @@ public class ProjectService : IProjectService
         string cacheKey = $"project:{request.Id}";
 
         _provider.Set<Models.ProjectDto>(cacheKey, request, new TimeSpan(1, 0, 0));
+
+        _context.Projects.Add(_mapper.Map<CleanArchitecture.Blazor.Domain.Entities.Project>(request));
+        await _context.SaveChangesAsync(new CancellationToken());
         return request;
     }
 
@@ -33,6 +46,10 @@ public class ProjectService : IProjectService
         string cacheKey = $"project:{id}";
         var results =await  _provider.GetAsync<Models.ProjectDto>(cacheKey);
         results.Value.Events = await _eventService.Search(new EventSearchRequest() { ProjectId = results.Value.Id });
+
+       var project= _context.Projects.Where(x => x.Id == id).FirstOrDefault();
+
+        return _mapper.Map<ProjectDto>(project);
         return results.Value;
     }
 
@@ -46,6 +63,10 @@ public class ProjectService : IProjectService
         {
             projects.Add(item.Value);
         }
+
+        var projectsFromDb = _context.Projects.ToList();
+        return _mapper.Map<List<ProjectDto>>(projectsFromDb);
+
 
         return projects;
     }

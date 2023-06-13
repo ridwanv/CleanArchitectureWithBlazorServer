@@ -1,3 +1,4 @@
+using AutoMapper;
 using BlazorShared.Events;
 using BlazorShared.Models;
 using CleanArchitecture.Blazor.Application.Common.Interfaces;
@@ -15,14 +16,17 @@ public class EventService : IEventService
     private readonly IEasyCachingProvider _provider;
     private readonly IPublisher _publisher;
     private readonly IApplicationDbContext _context;
+    private readonly IMapper _mapper;
 
 
-    public EventService(IEasyCachingProviderFactory factory, IPublisher publisher, IApplicationDbContext context)
+    public EventService(IEasyCachingProviderFactory factory, IPublisher publisher, IApplicationDbContext context, IMapper mapper)
     {
         _factory = factory;
         _provider = _factory.GetCachingProvider("default");
         _publisher = publisher;
         _context = context;
+        _mapper= mapper;
+
     }
 
 

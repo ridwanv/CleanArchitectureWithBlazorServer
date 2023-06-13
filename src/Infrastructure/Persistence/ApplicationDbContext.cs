@@ -29,6 +29,8 @@ public class ApplicationDbContext : IdentityDbContext<
 
     public DbSet<Supplier> Suppliers { get; set; }
     public DbSet<Contact> Contacts { get; set; }
+
+    public DbSet<Project> Projects { get; set; }
     public DbSet<AnswerFormat> AnswerFormats { get; set; }
     public DbSet<ShortText> ShortTextAnswerFormats { get; set; }
     public DbSet<Evaluation> EvaluationAnswerFormats { get; set; }
