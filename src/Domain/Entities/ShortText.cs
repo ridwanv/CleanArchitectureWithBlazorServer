@@ -10,5 +10,5 @@ namespace CleanArchitecture.Blazor.Domain.Entities;
 [Table("AnswerFormatShortTexts")]
 public class ShortText : AnswerFormat
 {
-    public string Answer { get; set; }
+    public string? Answer { get; set; }
 }

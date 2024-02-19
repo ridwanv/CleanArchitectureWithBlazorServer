@@ -9,6 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Entities\QuestionResponseDateTime.cs" />
+    <Compile Remove="Entities\QuestionResponseEvaluation.cs" />
+    <Compile Remove="Entities\QuestionResponseLongText.cs" />
+    <Compile Remove="Entities\QuestionResponseMultipleChoice.cs" />
+    <Compile Remove="Entities\QuestionResponseShortText.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MediatR" Version="11.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.9" />
   </ItemGroup>

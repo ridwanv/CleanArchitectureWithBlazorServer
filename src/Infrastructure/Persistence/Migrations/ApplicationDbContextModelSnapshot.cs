@@ -71,11 +71,22 @@ namespace CleanArchitecture.Blazor.Infrastructure.Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("AnswerMotivation")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("AnswerTypeEnum")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -511,7 +522,7 @@ namespace CleanArchitecture.Blazor.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("SectionId");
 
-                    b.ToTable("Question");
+                    b.ToTable("Questions");
                 });
 
             modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Questionaire", b =>
@@ -520,9 +531,53 @@ namespace CleanArchitecture.Blazor.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Questionaire");
+                    b.ToTable("Questionaires");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.QuestionResponse", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Answer")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SupplierQuestionaireId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId");
+
+                    b.HasIndex("SupplierQuestionaireId");
+
+                    b.ToTable("QuestionResponses");
                 });
 
             modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Section", b =>
@@ -595,6 +650,42 @@ namespace CleanArchitecture.Blazor.Infrastructure.Persistence.Migrations
                     b.HasIndex("PhysicalAddressId");
 
                     b.ToTable("Suppliers");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.SupplierQuestionaire", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("InvitationStatus")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("QuestionaireId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionaireId");
+
+                    b.HasIndex("SupplierId");
+
+                    b.ToTable("SupplierQuestionaires");
                 });
 
             modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Tenant", b =>
@@ -920,7 +1011,6 @@ namespace CleanArchitecture.Blazor.Infrastructure.Persistence.Migrations
                     b.HasBaseType("CleanArchitecture.Blazor.Domain.Entities.AnswerFormat");
 
                     b.Property<string>("Answer")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.ToTable("AnswerFormatShortTexts");
@@ -995,11 +1085,32 @@ namespace CleanArchitecture.Blazor.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.Section", null)
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.Section", "Section")
                         .WithMany("Questions")
                         .HasForeignKey("SectionId");
 
                     b.Navigation("AnswerType");
+
+                    b.Navigation("Section");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.QuestionResponse", b =>
+                {
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.Question", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.SupplierQuestionaire", "SupplierQuestionaire")
+                        .WithMany("QuestionResponses")
+                        .HasForeignKey("SupplierQuestionaireId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+
+                    b.Navigation("SupplierQuestionaire");
                 });
 
             modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Section", b =>
@@ -1016,6 +1127,25 @@ namespace CleanArchitecture.Blazor.Infrastructure.Persistence.Migrations
                         .HasForeignKey("PhysicalAddressId");
 
                     b.Navigation("PhysicalAddress");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.SupplierQuestionaire", b =>
+                {
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.Questionaire", "Questionaire")
+                        .WithMany("Suppliers")
+                        .HasForeignKey("QuestionaireId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.Supplier", "Supplier")
+                        .WithMany("SupplierQuestionaires")
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Questionaire");
+
+                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("CleanArchitecture.Blazor.Infrastructure.Identity.ApplicationRoleClaim", b =>
@@ -1149,6 +1279,8 @@ namespace CleanArchitecture.Blazor.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Questionaire", b =>
                 {
                     b.Navigation("Sections");
+
+                    b.Navigation("Suppliers");
                 });
 
             modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Section", b =>
@@ -1161,6 +1293,13 @@ namespace CleanArchitecture.Blazor.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Supplier", b =>
                 {
                     b.Navigation("Invitations");
+
+                    b.Navigation("SupplierQuestionaires");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.SupplierQuestionaire", b =>
+                {
+                    b.Navigation("QuestionResponses");
                 });
 
             modelBuilder.Entity("CleanArchitecture.Blazor.Infrastructure.Identity.ApplicationRole", b =>

@@ -10,4 +10,10 @@ public class Question
     public string QuestionLabel { get; set; }
     public bool IsMandatory { get; set; }
     public AnswerFormat AnswerType { get; set; }
+
+
+    //public Guid QuestionaireId { get; set; }
+
+    public virtual Section? Section { get; set; }
+    //public virtual Questionaire? Questionaire { get; set; }
 }

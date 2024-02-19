@@ -1,50 +1,244 @@
 ﻿@page "/suppliers/onboarding"
+@using BlazorShared.Enums
+@using BlazorShared.Models
+@using BlazorShared.Services
+@using MudBlazor.Utilities
+@layout UnauthenticatedLayout;
+@inject ISupplierService SupplierService;
 
 
-<MudGrid>
-   
-        <h3> Company Details </h3>
-        <MudItem xs="12">
-            <MudTextField T="string" Label="Company Name" Required="true" RequiredError="Supplier name is required!"/>
-        </MudItem>
-        <MudItem xs="12">
-            <MudTextField T="string" Label="Company Address" Required="true" RequiredError="Supplier name is required!"/>
-        </MudItem>
-        <MudItem xs="6">
-            <MudTextField T="string" Label="Company Address" Required="true" RequiredError="Supplier name is required!"/>
-        </MudItem>
-        <MudItem xs="6">
-            <MudTextField T="string" Label="Company Website" Required="true" RequiredError="Supplier name is required!"/>
-        </MudItem>
-        <MudItem xs="12">
-            <MudTextField T="string" Label="Other Details" Lines="5" Required="true" RequiredError="Supplier name is required!"/>
-        </MudItem>
-   
 
-    
-        <h3> Contact Details </h3>
-        <MudItem xs="6">
-            <MudTextField T="string" Label="Full Name" Required="true" RequiredError="Supplier name is required!"/>
-        </MudItem>
-        <MudItem xs="6">
-            <MudTextField T="string" Label="Job Title" Required="true" RequiredError="Supplier name is required!"/>
-        </MudItem>
-        <MudItem xs="6">
-            <MudTextField T="string" Label="Email Address" Required="true" RequiredError="Supplier name is required!"/>
-        </MudItem>
-        <MudItem xs="6">
-            <MudTextField T="string" Label="Office Number" Required="true" RequiredError="Supplier name is required!"/>
-        </MudItem>
-        <MudItem xs="6">
-            <MudTextField T="string" Label="Mobile Number" Required="true" RequiredError="Supplier name is required!"/>
-        </MudItem>
-    
-</MudGrid>
+
+
+
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <MudForm Model="@model" @ref="@form">
+    <MudPaper Width="100%" Class="pa-4 ma-4">
+      
+
+
+        <MudGrid>
+
+            <MudItem xs="6">
+
+                <MudImage Src="/images/hollard400px.png" Alt="Mony the dog" ObjectPosition="ObjectPosition.Center" Height="100" Width="150" Elevation="25" Class="rounded-lg" />
+
+            </MudItem>
+            <MudItem xs="6">
+                <MudText Typo="Typo.h5"> Supplier Onboarding Form</MudText>
+            </MudItem>
+
+            <MudItem xs="12">
+                <MudText Typo="Typo.subtitle1"> Company Details</MudText>
+            </MudItem>
+
+            <MudItem xs="12">
+                    <MudTextField Label="Company Name" HelperText="Please fill in full company name" @bind-Value="model.Name" For="@(() => model.Name)" Variant="Variant.Outlined" Margin="Margin.Dense" />
+            </MudItem>
+            <MudItem xs="12">
+                    <MudTextField Label="Tax Reference Number" HelperText="Please fill in Tax Reference Number" @bind-Value="model.TaxReferenceNumber" For="@(() => model.TaxReferenceNumber)" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                
+            </MudItem>
+
+                
+               
+                @* <MudTextField @bind-Value="model.PhysicalAddress.Line1" For="@(() => model.Website)" T="string" Label="Company Address" Required="false" /> *@
+  
+
+
+            <MudItem xs="6">
+
+                    <MudTextField @bind-Value="model.PhoneNumber" For="@(() => model.PhoneNumber)" Mask="@(new PatternMask("(000) 000 0000"))" T="string" Label="PhoneNumber" Required="false" Variant="Variant.Outlined" Margin="Margin.Dense" />
+
+            </MudItem>
+            <MudItem xs="6">
+                <MudTextField @bind-Value="model.Website" For="@(() => model.Website)" T="string" Label="Website" Required="false" Variant="Variant.Outlined" Margin="Margin.Dense" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudSelect Label="Category" @bind-Value="model.Category" >
+                    @foreach (var category in Enum.GetValues(typeof(CategoryEnum)))
+                    {
+                        <MudSelectItem T="CategoryEnum?" Value="(CategoryEnum)category">@category.ToString()</MudSelectItem>
+                    }
+
+                </MudSelect>
+
+
+            </MudItem>
+            <MudItem xs="12">
+
+                <MudTextField @bind-Value="model.Comments" For="@(() => model.Comments)" T="string" Label="Notes" Lines="5" Variant="Variant.Outlined" Margin="Margin.Dense" />
+
+            </MudItem>
+
+            <MudItem xs="12">
+                <MudText Typo="Typo.body1">Attach Catalog of Products/Services</MudText>
+                    <MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged="UploadFiles">
+                        <ButtonTemplate>
+                            <MudButton HtmlTag="label"
+                                       Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       StartIcon="@Icons.Material.Filled.CloudUpload"
+                                       for="@context.Id">
+                                Multiple Files
+                            </MudButton>
+                        </ButtonTemplate>
+                    </MudFileUpload>
+       
+              
+
+          
+
+            </MudItem>
+
+
+
+        </MudGrid>
+    </MudPaper>
+    <MudPaper Width="100%" Class="pa-4 ma-4">
+        <MudGrid>
+
+            <MudItem xs="12">
+                <MudText Typo="Typo.subtitle1"> Physical Address</MudText>
+            </MudItem>
+            <MudItem xs="12">
+                    <MudTextField @bind-Value="model.PhysicalAddress.Line1" T="string" For="@(() => model.PhysicalAddress.Line1)" Label="Line 1" Variant="Variant.Outlined" Margin="Margin.Dense" />
+            </MudItem>
+            <MudItem xs="12">
+                    <MudTextField @bind-Value="model.PhysicalAddress.Line2" T="string" For="@(() => model.PhysicalAddress.Line2)" Label="Line 2" Variant="Variant.Outlined" Margin="Margin.Dense" />
+            </MudItem>
+            <MudItem xs="6">
+                    <MudTextField @bind-Value="model.PhysicalAddress.City" T="string" For="@(() => model.PhysicalAddress.City)" Label="City" Variant="Variant.Outlined" Margin="Margin.Dense" />
+            </MudItem>
+            <MudItem xs="6">
+                    <MudTextField @bind-Value="model.PhysicalAddress.Code" T="string" For="@(() => model.PhysicalAddress.Code)" Label="Postal Code" Variant="Variant.Outlined" Margin="Margin.Dense" />
+            </MudItem>
+
+        </MudGrid>
+    </MudPaper>
+
+
+
+
+    <MudPaper Width="100%" Class="pa-4 ma-4">
+        <MudGrid>
+        
+                <MudItem xs="12">
+                    <MudText Typo="Typo.subtitle1"> Contact Details</MudText>
+                </MudItem>
+                <MudItem xs="6">
+                <MudTextField @bind-Value="model.Contacts[0].FullName" T="string" Label="Full Name" Required="true" RequiredError="Supplier name is required!" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+                <MudItem xs="6">
+                <MudTextField @bind-Value="model.Contacts[0].Position" T="string" Label="Job Title" Required="true" RequiredError="Supplier name is required!" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+                <MudItem xs="6">
+                <MudTextField @bind-Value="model.Contacts[0].EmailAddress" T="string" Label="Email Address" Required="true" RequiredError="Supplier name is required!" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+                <MudItem xs="6">
+                <MudTextField @bind-Value="model.Contacts[0].PhoneNumber" T="string" Label="Office Number" Required="true" RequiredError="Supplier name is required!" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+                <MudItem xs="6">
+                <MudTextField @bind-Value="model.Contacts[0].PhoneNumber" T="string" Label="Mobile Number" Required="true" RequiredError="Supplier name is required!" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+       
+        </MudGrid>
+    </MudPaper>
+
+    <MudPaper Width="100%" Class="pa-4 ma-4">
+        <MudGrid>
+
+                <MudItem xs="12">
+                    <MudText Typo="Typo.subtitle1"> Declaration </MudText>
+                </MudItem>
+                <MudItem xs="1">
+                    <MudCheckBox @bind-Value="model.DeclarationChecked" For="@(() => model.DeclarationChecked)"></MudCheckBox>
+                </MudItem>
+                <MudItem xs="11">
+                    <MudText Typo="Typo.body1">
+                        By checking this box I, @model.Contacts[0].FullName, declare that:
+
+                        The information provided is true, accurate, and complete.
+
+                        I consent to the use of this information for its intended purpose.
+
+                        I understand that false information may lead to consequences
+                    </MudText>
+                </MudItem>
+
+        </MudGrid>
+    </MudPaper>
+
+        <MudPaper Width="100%" Class="pa-4 ma-4">
+            <MudGrid>
+
+                <MudItem xs="12">
+
+                    @* <MudButton Variant="Variant.Filled" Class="align-end" EndIcon="@Icons.Material.Filled.Send" OnClick="Save" Color="Color.Primary">Send</MudButton> *@
+
+                    <MudButton Disabled="@_processing" OnClick="Save" Variant="Variant.Filled" Color="Color.Primary">
+                        @if (_processing)
+                        {
+                            <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                            <MudText Class="ms-2">Processing</MudText>
+                        }
+                        else
+                        {
+                            <MudText>Submit</MudText>
+                        }
+                    </MudButton>
+
+
+                </MudItem>
+
+            </MudGrid>
+        </MudPaper>
+    </MudForm>
+</MudContainer>
+
+
 
 
 
 
 
 @code {
+
+
+    private bool _processing = false;
+
+    public MudForm form { get; set; }
+
+    public SupplierDto model { get; set; } = new();
+
+    IList<IBrowserFile> files = new List<IBrowserFile>();
+    private void UploadFiles(IReadOnlyList<IBrowserFile> files)
+    {
+        foreach (var file in files)
+        {
+            this.files.Add(file);
+        }
+        //TODO upload the files to the server
+    }
+
+
+    public void Save()
+    {
+        _processing = true;
+        form.Validate();
+        if (form.IsValid)
+        {
+            var supplier = SupplierService.Create(model);
+        }
+        _processing = false;
+        Snackbar.Add($"{ToastText.CREATESUCCESS}", MudBlazor.Severity.Info);
+    }
+
+    private void OnValidSubmit(EditContext context)
+    {
+        StateHasChanged();
+        var supplier = SupplierService.Create(model);
+    }
+
 
 }

@@ -1,10 +1,13 @@
-﻿namespace BlazorShared.Models;
+﻿using CleanArchitecture.Blazor.Application.Common.Mappings;
+using CleanArchitecture.Blazor.Domain.Entities;
+
+namespace BlazorShared.Models;
 
 public class SingleChoiceDto : AnswerFormatDto
 {
     private string _answer;
 
     public List<string> Choices { get; set; }
-    public string Answer { get => _answer; set { _answer = value; AnswerChanged(); AnswerText = value; } }
+
 
 }

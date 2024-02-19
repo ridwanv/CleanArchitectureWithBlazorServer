@@ -44,19 +44,20 @@ public class ProjectService : IProjectService
     public async Task<ProjectDto> Retrieve(Guid id)
     {
         string cacheKey = $"project:{id}";
-        var results =await  _provider.GetAsync<Models.ProjectDto>(cacheKey);
-        results.Value.Events = await _eventService.Search(new EventSearchRequest() { ProjectId = results.Value.Id });
+        //var results =await  _provider.GetAsync<Models.ProjectDto>(cacheKey);
+        //results.Value.Events = await _eventService.Search(new EventSearchRequest() { ProjectId = results.Value.Id });
 
        var project= _context.Projects.Where(x => x.Id == id).FirstOrDefault();
 
         return _mapper.Map<ProjectDto>(project);
-        return results.Value;
+        //return results.Value;
     }
 
     public async Task<List<ProjectDto>> Search(ProjectSearchRequest projectSearchRequest)
     {
         var projects = new List<ProjectDto>();
-
+        projects.Add(new ProjectDto() {Id = Guid.NewGuid(),Description="Procurement for the Sales Department",ProjectName="Sales Department",ProjectCode ="KJLAS001",Status = StatusEnum.Inactive });
+        projects.Add(new ProjectDto() { Id = Guid.NewGuid(), Description = "FICA Project", ProjectName = "Demo Project", ProjectCode = "KJLAS002", Status = StatusEnum.Inactive });
         var results = await _provider.GetByPrefixAsync<Models.ProjectDto>("project");
 
         foreach (var item in results.Values)

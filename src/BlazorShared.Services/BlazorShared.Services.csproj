@@ -1,9 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+      <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,9 +21,12 @@
     <PackageReference Include="EasyCaching.SQLite" Version="1.6.1" />
     <PackageReference Include="HtmlRenderer.PdfSharp" Version="1.5.0.6" />
     <PackageReference Include="iTextSharp-LGPL" Version="4.1.6" />
+    <PackageReference Include="MailKit" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Blazor.Templates\Blazor.Templates.csproj" />
     <ProjectReference Include="..\BlazorShared\BlazorShared.csproj" />
   </ItemGroup>
 

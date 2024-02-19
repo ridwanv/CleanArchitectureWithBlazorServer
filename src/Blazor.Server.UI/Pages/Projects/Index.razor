@@ -28,7 +28,7 @@
                   Loading="@_loading"
                   SortLabel="@L["Sort By"]"
                   MultiSelection="false" @bind-SelectedItem="_selectedItem"
-                  Hover="true" @ref="_table">
+                  Hover="true" @ref="_table" Dense=true>
 
                 <ToolBarContent>
                 <div class="justify-start pt-3">
@@ -66,33 +66,60 @@
  
             <HeaderContent>
                 <MudTh>Actions</MudTh>
-                <MudTh>@L["Id"]</MudTh>
-                <MudTh>@L["Code"]</MudTh>
-                <MudTh>@L["Name"]</MudTh>
+                <MudTh>@L["Project Name"]</MudTh>
                 <MudTh>@L["Description"]</MudTh>
                 <MudTh>@L["Status"]</MudTh>
             </HeaderContent>
             <RowTemplate>
-                <MudTd DataLabel="@L["Actions"]">
+            <MudTd DataLabel="@ButtonText.ACTIONS">
 
-                    <MudIconButton Icon="fa-solid fa-eye" Color="Color.Error" OnClick="@(()=>OnView(context))"></MudIconButton>
-                  
-                </MudTd>
+                <MudMenu Label="..." Variant="Variant.Filled" DisableElevation="true" Size="Size.Small"
+                         Dense="true"
+                         EndIcon="@Icons.Filled.KeyboardArrowDown" IconColor="Color.Info">
+                    @if (_canEdit)
+                {
+                    <MudMenuItem OnClick="@(()=>OnView(context))">@ButtonText.EDIT</MudMenuItem>
+                }
+                @if (_canDelete)
+                {
+                    <MudMenuItem OnClick="@(()=>OnView(context))">@ButtonText.DELETE</MudMenuItem>
+                }
+                @if (_canApprove)
+                {
+                    <MudMenuItem OnClick="@(()=>OnView(context))">Approve</MudMenuItem>
+                }
+                @if (_canEdit)
+                {
 
-                <MudTd DataLabel="@L["Id"]">
-                    <MudText>@context.Id</MudText>
-                </MudTd>
+                    <MudMenuItem OnClick="@(()=>OnView(context))">View</MudMenuItem>
+                }
+            </MudMenu>
+        </MudTd>
                 <MudTd DataLabel="@L["Project Name"]">
-                    <MudText>@context.ProjectName</MudText>      
+                 
+                <a href="" @onclick="@(()=>OnView(context))" @onclick:preventDefault>@context.ProjectName</a>
                 </MudTd>
-                <MudTd DataLabel="@L["Project Code"]">
-                    <MudText>@context.ProjectCode</MudText>          
-                </MudTd>
+
                 <MudTd DataLabel="@L["Description"]">
                     <MudText>@context.Description</MudText>
                 </MudTd>
                 <MudTd DataLabel="@L["Status"]">
-                    <MudText></MudText>
+                @if (@context.Status == StatusEnum.Active)
+            {
+                <MudChip Color="Color.Success">@context.Status</MudChip>
+            }
+            else if (@context.Status == StatusEnum.Inactive)
+            {
+                <MudChip Color="Color.Error">@context.Status</MudChip>
+            }
+            else if (@context.Status == StatusEnum.Pending)
+            {
+                <MudChip Color="Color.Warning">@context.Status</MudChip>
+            }
+            else if (@context.Status == StatusEnum.Suspended)
+            {
+                <MudChip Color="Color.Error">@context.Status</MudChip>
+            }
                 </MudTd>
 
             </RowTemplate>
@@ -152,6 +179,8 @@
         _canExport = false;
 
     }
+
+    
     private async Task<TableData<ProjectDto>> ServerReload(TableState state)
     {
         var projects = await _projectService.Search(new ProjectSearchRequest() { });

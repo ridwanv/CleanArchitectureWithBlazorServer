@@ -7,62 +7,75 @@
 @inject IEventService _eventService
 
 <h1> @model.ProjectName</h1>
-<h7> Project Id: @model.Id</h7>
+<MudChip Color="Color.Success">@model.Status</MudChip>
 
-            <MudGrid>
-                @*TODO: define mudform that should be edit fields, for example:*@
-                <MudItem xs="12"> 
-                        <MudTextField Label="ProjectCode" @bind-Value="model.ProjectCode" For="@(() => model.ProjectCode)" Required="true" RequiredError="name is required!"></MudTextField>
-                </MudItem> 
-                 <MudItem xs="12"> 
-                        <MudTextField Label="ProjectName" @bind-Value="model.ProjectName" For="@(() => model.ProjectName)" Required="true" RequiredError="name is required!"></MudTextField>
-                </MudItem> 
-                <MudItem xs="12"> 
-                        <MudTextField Label="Description" Lines="3" For="@(() => model.Description)" @bind-Value="model.Description"></MudTextField>
-                </MudItem> 
-                 <MudItem xs="12">
-                    <MudPaper Class="pa-4">
-                        <MudTable Items="model.Events" Dense="true" Hover="true"
-                          @bind-SelectedItem="SelectedEvent" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
-                          OnCommitEditClick="@(() => Snackbar.Add("Commit Edit Handler Invoked"))" @ref="_table"
-                           IsEditRowSwitchingBlocked="true">
+<MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+    <MudTabPanel Text="Settings and Overview">
+        <MudGrid>
+            @*TODO: define mudform that should be edit fields, for example:*@
+            <MudItem xs="12">
+                <h7> Project Id: @model.Id</h7>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField Label="ProjectCode" @bind-Value="model.ProjectCode" For="@(() => model.ProjectCode)" Required="true" RequiredError="name is required!"></MudTextField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField Label="ProjectName" @bind-Value="model.ProjectName" For="@(() => model.ProjectName)" Required="true" RequiredError="name is required!"></MudTextField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField Label="Description" Lines="3" For="@(() => model.Description)" @bind-Value="model.Description"></MudTextField>
+            </MudItem>
 
-                            <HeaderContent>
-                                <MudTh><MudTh>@PromptText.ACTIONS</MudTh></MudTh>
-                                <MudTh>ID</MudTh>
-                                <MudTh>Event</MudTh>
-                                <MudTh>Type</MudTh>
-                                 <MudTh>Status</MudTh>
-                            </HeaderContent>
-                            <RowTemplate>
-                                 <MudTd DataLabel="Actions">
-                                     <MudIconButton Icon="fa-solid fa-eye" Color="Color.Error" OnClick="@(()=>OnView(context))"></MudIconButton>                  
-                                </MudTd>
-                                <MudTd DataLabel="Id">@context.Id</MudTd>
-                                <MudTd DataLabel="Event">@context.EventName</MudTd>
-                                <MudTd DataLabel="Event Type">@context.EventType</MudTd>
-                                <MudTd DataLabel="Event Status"> <MudChip Variant="Variant.Text" Color="context.EventStatus==EventStatus.Draft? Color.Default:context.EventStatus==EventStatus.Active?Color.Success: Color.Info">@context.EventStatus</MudChip></MudTd>
-                            </RowTemplate>
-                            <RowEditingTemplate>
-                                <MudTd DataLabel="Id">
-                                    <MudTextField @bind-Value="@context.Id" Required />
-                                </MudTd>
-                                <MudTd DataLabel="Event">
-                                    <MudTextField @bind-Value="@context.EventName" Required />
-                                </MudTd>
-                                <MudTd DataLabel="Event Type">
-                                    <MudTextField @bind-Value="@context.EventType" Required />
-                                </MudTd>
-                            </RowEditingTemplate>
-                        </MudTable>  
-                        <MudButton ButtonType="ButtonType.Button" @onclick="AddEvent"> Add Event</MudButton>
-                        <MudMenu Label="Add Event">
-                            <MudMenuItem OnClick="AddEvent">RFI</MudMenuItem>
-                            <MudMenuItem OnClick="AddEvent">RFQ</MudMenuItem>
-                        </MudMenu>
-                    </MudPaper>
-                </MudItem>
-            </MudGrid>
+         </MudGrid>
+    </MudTabPanel>
+    <MudTabPanel Text="Events">
+       
+            <MudTable Items="model.Events" Dense="true" Hover="true"
+                      @bind-SelectedItem="SelectedEvent" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
+                      OnCommitEditClick="@(() => Snackbar.Add("Commit Edit Handler Invoked"))" @ref="_table"
+                      IsEditRowSwitchingBlocked="true">
+
+                <HeaderContent>
+                        <MudTh>...</MudTh>
+                        <MudTh>ID</MudTh>
+                        <MudTh>Event</MudTh>
+                        <MudTh>Type</MudTh>
+                        <MudTh>Status</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Actions">
+                            <MudIconButton Icon="fa-solid fa-eye" Color="Color.Error" OnClick="@(()=>OnView(context))"></MudIconButton>
+                        </MudTd>
+                        <MudTd DataLabel="Id">@context.Id</MudTd>
+                        <MudTd DataLabel="Event">@context.EventName</MudTd>
+                        <MudTd DataLabel="Event Type">@context.EventType</MudTd>
+                        <MudTd DataLabel="Event Status"> <MudChip Variant="Variant.Text" Color="context.EventStatus==EventStatus.Draft? Color.Default:context.EventStatus==EventStatus.Active?Color.Success: Color.Info">@context.EventStatus</MudChip></MudTd>
+                    </RowTemplate>
+                    <RowEditingTemplate>
+                        <MudTd DataLabel="Id">
+                            <MudTextField @bind-Value="@context.Id" Required />
+                     </MudTd>
+                     <MudTd DataLabel="Event">
+                         <MudTextField @bind-Value="@context.EventName" Required />
+                     </MudTd>
+                     <MudTd DataLabel="Event Type">
+                         <MudTextField @bind-Value="@context.EventType" Required />
+                     </MudTd>
+                 </RowEditingTemplate>
+             </MudTable>
+             <MudButton ButtonType="ButtonType.Button" @onclick="AddEvent"> Add Event</MudButton>
+             <MudMenu Label="Add Event">
+                 <MudMenuItem OnClick="AddEvent">RFI</MudMenuItem>
+                 <MudMenuItem OnClick="AddEvent">RFQ</MudMenuItem>
+             </MudMenu>
+  
+    </MudTabPanel>
+
+</MudTabs>
+
+
+
+
 
 
 

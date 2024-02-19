@@ -1,0 +1,232 @@
+@page "/questionaire/{id:guid}"
+@using BlazorShared.Models
+@using BlazorShared.Services
+
+@attribute [Authorize(Policy = Permissions.Products.View)]
+@inject IProjectService _projectService
+@inject IQuestionaireService _questionaireService;
+
+<h1> @model.Name</h1>
+
+
+<MudGrid>
+    <MudItem xs="12">
+        <h7> Questionaire Id: @model.Id</h7>
+    </MudItem>
+    <MudItem xs="12">
+        <MudTextField Label="Name" @bind-Value="model.Name" For="@(() => model.Name)" />
+    </MudItem>
+    <MudItem xs="12">
+        <MudTextField Label="Description" Lines="3" For="@(() => model.Description)" @bind-Value="model.Description" />
+    </MudItem>
+
+</MudGrid>
+
+
+<MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+    <ChildContent>
+        @foreach (var item in model.Sections)
+        {
+            <MudTabPanel Text="@item.SectionName">
+
+                <MudPaper Class="pa-4">
+                    <h3>Questions</h3>
+                    <MudTable Items="item.Questions" Dense="true" Hover="true"
+                              @bind-SelectedItem="SelectedQuestion" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
+                              OnCommitEditClick="@(() => Snackbar.Add("Commit Edit Handler Invoked"))" @ref="_questionaireTable"
+                              IsEditRowSwitchingBlocked="true">
+
+                        <HeaderContent>
+                            <MudTh>..</MudTh>
+                            <MudTh>Question</MudTh>
+                            <MudTh>Category</MudTh>
+                            <MudTh>Type</MudTh>
+                            <MudTh>Is Mandatory</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Id">
+
+                                <MudMenu Label="..." Variant="Variant.Filled" DisableElevation="true" Size="Size.Small"
+                                         Dense="true"
+                                         EndIcon="@Icons.Filled.KeyboardArrowDown" IconColor="Color.Info">
+                                    <MudMenuItem OnClick="@(()=>EditQuestion(context))">@ButtonText.EDIT</MudMenuItem>
+                                </MudMenu>
+
+
+
+                            </MudTd>
+                                <MudTd DataLabel="Question">@context.QuestionLabel</MudTd>
+                                <MudTd DataLabel="Category">@context.Category</MudTd>
+                                <MudTd DataLabel="Type">@context.AnswerTypeEnum </MudTd>
+                                <MudTd DataLabel="Is Mandatory">@context.IsMandatory</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                        <MudButton ButtonType="ButtonType.Button" @onclick='() => AddQuestion("General")'> Add Question</MudButton>
+                        <MudButton ButtonType="ButtonType.Button" @onclick='() => AddQuestion("Assessment")'> Add AssessmentQuestion</MudButton>
+                    </MudPaper>
+
+
+
+            </MudTabPanel>
+        }
+    </ChildContent>
+
+
+
+
+
+
+@*     <MudTabPanel Text="Events">
+       
+            <MudTable Items="model.Events" Dense="true" Hover="true"
+                      @bind-SelectedItem="SelectedEvent" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
+                      OnCommitEditClick="@(() => Snackbar.Add("Commit Edit Handler Invoked"))" @ref="_table"
+                      IsEditRowSwitchingBlocked="true">
+
+                <HeaderContent>
+                        <MudTh>...</MudTh>
+                        <MudTh>ID</MudTh>
+                        <MudTh>Event</MudTh>
+                        <MudTh>Type</MudTh>
+                        <MudTh>Status</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Actions">
+                            <MudIconButton Icon="fa-solid fa-eye" Color="Color.Error" OnClick="@(()=>OnView(context))"></MudIconButton>
+                        </MudTd>
+                        <MudTd DataLabel="Id">@context.Id</MudTd>
+                        <MudTd DataLabel="Event">@context.EventName</MudTd>
+                        <MudTd DataLabel="Event Type">@context.EventType</MudTd>
+                        <MudTd DataLabel="Event Status"> <MudChip Variant="Variant.Text" Color="context.EventStatus==EventStatus.Draft? Color.Default:context.EventStatus==EventStatus.Active?Color.Success: Color.Info">@context.EventStatus</MudChip></MudTd>
+                    </RowTemplate>
+                    <RowEditingTemplate>
+                        <MudTd DataLabel="Id">
+                            <MudTextField @bind-Value="@context.Id" Required />
+                     </MudTd>
+                     <MudTd DataLabel="Event">
+                         <MudTextField @bind-Value="@context.EventName" Required />
+                     </MudTd>
+                     <MudTd DataLabel="Event Type">
+                         <MudTextField @bind-Value="@context.EventType" Required />
+                     </MudTd>
+                 </RowEditingTemplate>
+             </MudTable>
+             <MudButton ButtonType="ButtonType.Button" @onclick="AddEvent"> Add Event</MudButton>
+             <MudMenu Label="Add Event">
+                 <MudMenuItem OnClick="AddEvent">RFI</MudMenuItem>
+                 <MudMenuItem OnClick="AddEvent">RFQ</MudMenuItem>
+             </MudMenu>
+  
+    </MudTabPanel> *@
+
+</MudTabs>
+
+
+
+
+
+
+
+@code {
+    private MudTable<BlazorShared.Models.QuestionDto> _questionaireTable = default!;
+    public BlazorShared.Models.QuestionDto SelectedQuestion { get; set; } = new();
+
+    [Inject]
+    private NavigationManager _navigationManager { get; set; } = default!;
+
+    [Parameter]
+    public Guid? Id { get; set; }
+
+
+    public async void AddQuestion(string questionType)
+    {
+        var questionModel = new BlazorShared.Models.QuestionDto();
+        if (questionType == "Assessment")
+            questionModel = new AssessmentQuestionDto();
+
+        var parameters = new DialogParameters
+            {
+                   { nameof(_QuestionFormDialog.model),questionModel },
+            };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var dialog = DialogService.Show<_QuestionFormDialog>(string.Format("Add Question"), parameters, options);
+        var state = await dialog.Result;
+        if (!state.Cancelled)
+        {
+            questionModel = (QuestionDto)state.Data;
+            // model.Questionaire.AddQuestion(questionModel);
+            await _table.ReloadServerData();
+            Snackbar.Add($"{ToastText.CREATESUCCESS}", MudBlazor.Severity.Info);
+        }
+    }
+
+
+    private MudTable<BlazorShared.Models.EventDto> _table = default!;
+    MudForm form = default!;
+
+    public QuestionaireDto? model { get; set; } = default!;
+
+
+
+    private EventDto? _supplier= new();
+    private EventDto SelectedEvent = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+
+        if (Id.HasValue)
+            model = await _questionaireService.Get(Id.Value);
+        if (model == null)
+            model = new QuestionaireDto();
+
+
+    }
+
+
+    private async Task EditQuestion(QuestionDto questionModel)
+    {
+
+        var parameters = new DialogParameters
+            {
+                   { nameof(_QuestionFormDialog.model),questionModel },
+            };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var dialog = DialogService.Show<_QuestionFormDialog>(string.Format("Edit Question"), parameters, options);
+        var state = await dialog.Result;
+        if (!state.Cancelled)
+        {
+            questionModel = (QuestionDto)state.Data;
+            // model.Questionaire.AddQuestion(questionModel);
+            await _table.ReloadServerData();
+            Snackbar.Add($"{ToastText.CREATESUCCESS}", MudBlazor.Severity.Info);
+        }
+    }
+
+    private async Task OnView(EventDto context)
+    {
+        if (context != null)
+        {
+            _navigationManager.NavigateTo($"/events/edit/{context.Id}");
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // if (Id.HasValue)
+        //     model = await _projectService.Retrieve(Id.Value);
+    }
+
+    private void OnClick(MouseEventArgs args) 
+    { 
+
+
+    }
+    public async void AddEvent()
+    {
+      
+
+        _navigationManager.NavigateTo($"/events/add/{model.Id}");
+    }
+
+
+}

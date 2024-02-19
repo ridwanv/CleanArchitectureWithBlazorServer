@@ -1,14 +1,24 @@
-﻿@page "/suppliers/addedit"
+﻿@page "/supplier/addedit/{supplierId:guid?}"
+
 
 @using BlazorShared.Models
 @using BlazorShared.Services
+@inject NavigationManager NavigationManager
 
 @inject ISupplierService _supplierService
 
 <h1> @model.Name</h1>
-<h7> Supplier Id: @model.Id</h7>
+<h7> Supplier Id: @model.Id</h7><MudChip Color="Color.Success">@model.Status</MudChip>
 
 <MudGrid>
+
+       <MudItem xs="12">
+           <MudText Typo="Typo.h6">Internal Information</MudText>
+            <MudTextField @bind-Value="model.RiskRating" For="@(() => model.RiskRating)" T="string" Label="Category" Required="true" />
+
+       </MudItem>
+
+    
 
         <MudItem xs="6">
             <MudPaper Class="mud-width-full py-8 pa-4">
@@ -36,10 +46,11 @@
 
      <MudItem xs="12">
         <MudPaper Class="pa-4">
-            <MudTable Items="model.Contacts" Dense="true" Hover="true"
+            <MudText Typo="Typo.h6">Contacts</MudText>
+            <MudTable Items="model.Contacts"  Hover="true"
               @bind-SelectedItem="SelectedContact" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
               OnCommitEditClick="@(() => Snackbar.Add("Commit Edit Handler Invoked"))" @ref="_table"
-               IsEditRowSwitchingBlocked="true">
+                      IsEditRowSwitchingBlocked="true" Dense="true" Bordered="true">
 
                 <HeaderContent>
                     <MudTh>Name</MudTh>
@@ -72,8 +83,45 @@
         </MudPaper>
     </MudItem>
 
-    <MudItem>
+     <MudItem xs="12">
+         <MudPaper Class="pa-4 mt-4">
+             <MudText Typo="Typo.h6">Questionaires</MudText>
+             <MudTable Items="@model.SupplierQuestionaires" Dense="true" Hover="true"
+                       @bind-SelectedItem="SelectedQuestionaire" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
+                       OnCommitEditClick="@(() => Snackbar.Add("Commit Edit Handler Invoked"))" @ref="_questionaireTable"
+                       IsEditRowSwitchingBlocked="true">
+
+                 <HeaderContent>
+                     <MudTh>..</MudTh>
+                     <MudTh>Name</MudTh>
+                     <MudTh>Description</MudTh>
+                     <MudTh>Status</MudTh>
+                     <MudTh>Percentage Complete</MudTh>
+                     <MudTh>SupplierUrl</MudTh>
+                 </HeaderContent>
+                 <RowTemplate>
+                     <MudTd DataLabel="Id">
+
+                         <MudMenu Label="..." Variant="Variant.Filled" DisableElevation="true" Size="Size.Small"
+                                  Dense="true"
+                                  EndIcon="@Icons.Filled.KeyboardArrowDown" IconColor="Color.Info">
+                             <MudMenuItem OnClick="@(()=>ViewQuestionaire(context))">@ButtonText.EDIT</MudMenuItem>
+                            </MudMenu>
+                        </MudTd>
+                        <MudTd DataLabel="Name">@context.Questionaire.Name</MudTd>
+                        <MudTd DataLabel="Description">@context.Questionaire.Description</MudTd>
+                        <MudTd DataLabel="Invitation Status">@context.InvitationStatus</MudTd>
+                        <MudTd DataLabel="Invitation Status">@context.PercentageComplete</MudTd>
+                        <MudTd DataLabel="Supplier Url"><a href="@NavigationManager.BaseUri/@context.Url">Questionaire Link</a></MudTd>
+                    </RowTemplate>
+                </MudTable>
+         </MudPaper>
+     </MudItem>
+
+
+    <MudItem xs="12">
                 <MudPaper Class="pa-4 mt-4">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" DisableElevation="true" OnClick="@(()=>SendScorecards())">Send Outstanding Scorecards</MudButton>
             <MudButton Variant="Variant.Filled" Color="Color.Primary" DisableElevation="true" OnClick="@(()=>Save())">Save</MudButton>
             <MudButton Variant="Variant.Filled" Color="Color.Secondary" DisableElevation="true" OnClick="@(()=>Cancel())" Class="mx-2">Cancel</MudButton>
         </MudPaper>
@@ -84,19 +132,49 @@
 
 
 
-@code {
+    @code {
     MudForm form = default!;
     private MudTable<BlazorShared.Models.ContactDto> _table = default!;
-    public SupplierCreateRequest model { get; set; } = new() {};
+    private MudTable<BlazorShared.Models.SupplierQuestionaireDto> _questionaireTable = default!;
+    //public SupplierCreateRequest model { get; set; } = new() {};
 
     public BlazorShared.Models.ContactDto SelectedContact { get; set; } = new();
+    public BlazorShared.Models.SupplierQuestionaireDto SelectedQuestionaire { get; set; } = new();
 
+    public SupplierDto model { get; set; } = new();
 
     [Inject]
     private NavigationManager _navigationManager { get; set; } = default!;
 
+    [Parameter]
+    public Guid? SupplierId { get; set; }
 
 
+    protected override async Task OnParametersSetAsync()
+    {
+        if (SupplierId.HasValue)
+            model = await _supplierService.Retrieve(SupplierId.Value);
+
+    }
+
+    private async Task ViewQuestionaire(SupplierQuestionaireDto questionModel)
+    {
+
+        // var parameters = new DialogParameters
+        //     {
+        //            { nameof(_QuestionFormDialog.model),questionModel },
+        //     };
+        // var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        // var dialog = DialogService.Show<_QuestionFormDialog>(string.Format("Edit Question"), parameters, options);
+        // var state = await dialog.Result;
+        // if (!state.Cancelled)
+        // {
+        //     questionModel = (QuestionDto)state.Data;
+        //     // model.Questionaire.AddQuestion(questionModel);
+        //     await _table.ReloadServerData();
+        //     Snackbar.Add($"{ToastText.CREATESUCCESS}", MudBlazor.Severity.Info);
+        // }
+    }
 
     public async void AddContact()
     {
@@ -116,11 +194,14 @@
         }
     }
 
-
+    public void SendScorecards()
+    {
+        _supplierService.SendScorecards(model.Id);
+    }
 
     public void Save()
     {
-        _supplierService.Create(model);
+        //_supplierService.Create(model);
     }
 
     public void Cancel()

@@ -39,8 +39,10 @@
                     @foreach (var item in model.Invitations)
                     {
                         <MudTd>
-                            @if(item.Questionaire.Questions.FirstOrDefault(c=>c.QuestionId == context.QuestionId)!=null)
-                                @item.Questionaire.Questions.FirstOrDefault(x=>x.QuestionId == context.QuestionId).AnswerType.ToString()
+                            @if (item.Questionaire.Questions.FirstOrDefault(c => c.Id == context.Id) != null)
+                                @item.Questionaire.Questions.FirstOrDefault(x => x.Id == context.Id).AnswerType.ToString()
+
+
 
                            
                         </MudTd>

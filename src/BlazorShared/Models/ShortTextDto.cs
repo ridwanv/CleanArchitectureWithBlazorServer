@@ -1,8 +1,18 @@
-﻿namespace BlazorShared.Models;
+﻿using AutoMapper;
+using CleanArchitecture.Blazor.Application.Common.Mappings;
+using CleanArchitecture.Blazor.Domain.Entities;
 
-public class ShortTextDto : AnswerFormatDto
+namespace BlazorShared.Models;
+
+public class ShortTextDto : AnswerFormatDto, IMapFrom<ShortText>
 {
-    private string _answer;
 
-    public string Answer { get => _answer; set { _answer = value; AnswerChanged(); AnswerText = value; } }
+    public void Mapping(Profile profile)
+    {
+        profile.CreateMap<ShortText, ShortTextDto>(MemberList.None);
+        profile.CreateMap<ShortTextDto, ShortText>(MemberList.None);
+
+    }
+
+    public string Label { get; set; }
 }

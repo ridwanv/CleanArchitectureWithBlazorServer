@@ -12,7 +12,9 @@
 
     <ItemGroup>
       <Content Remove="Pages\Projects\AddEdit.razor" />
+      <Content Remove="Pages\Questionaires\_QuestionaireFormDialog - Copy.razor" />
       <Content Remove="Pages\Suppliers\_SupplierRequestFormDialog.razor" />
+      <Content Remove="Shared\SupplierQuestionaireLayout.razor" />
     </ItemGroup>
   <ItemGroup>
         <PackageReference Include="Blazor-Analytics" Version="3.11.0" />
@@ -22,7 +24,7 @@
         <PackageReference Include="Hangfire.AspNetCore" Version="1.8.0-beta3" />
         <PackageReference Include="Hangfire.MemoryStorage.Core" Version="1.4.0" />
         <PackageReference Include="Hashids.net" Version="1.6.1" />
-       <PackageReference Include="MudBlazor" Version="6.0.17" />
+       <PackageReference Include="MudBlazor" Version="6.15.0" />
        <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />
         <PackageReference Include="Toolbelt.Blazor.HotKeys" Version="13.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.9">

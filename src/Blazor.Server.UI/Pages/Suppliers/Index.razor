@@ -28,8 +28,8 @@
                   Height="calc(100vh - 315px)"
                   Loading="@_loading"
                   SortLabel="@L["Sort By"]"
-                  MultiSelection="true" @bind-SelectedItems="_selectedItems"
-                  Hover="true" @ref="_table">
+                  MultiSelection="false" @bind-SelectedItems="_selectedItems"
+              Hover="true" @ref="_table" Dense="true" Bordered="true">
 
                 <ToolBarContent>
                 <div class="justify-start pt-3">
@@ -84,27 +84,21 @@
             </ToolBarContent>
  
             <HeaderContent>
-                <MudTh>@PromptText.ACTIONS</MudTh>
+                <MudTh></MudTh>
                 <MudTh>@L["Id"]</MudTh>
                 <MudTh>@L["Name"]</MudTh>
                 <MudTh>@L["Category"]</MudTh>
                 <MudTh>@L["Segment"]</MudTh>
                  <MudTh>@L["Status"]</MudTh>
                 <MudTh>@L["Risk"]</MudTh>
+            <MudTh>@L["CreatedOn"]</MudTh>
             </HeaderContent>
             <RowTemplate>
-                <MudTd DataLabel="@L["Actions"]">
-
-                    <MudIconButton Icon="fa-solid fa-eye" Color="Color.Error" OnClick="@(()=>OnView(context))"></MudIconButton>
-                  
-                </MudTd>
                 <MudTd DataLabel="@ButtonText.ACTIONS">
-                    @if (_canEdit || _canDelete || _canApprove)
-                    {
-                        <MudMenu Label="@ButtonText.ACTIONS" Variant="Variant.Filled" DisableElevation="true" Size="Size.Small"
+
+                        <MudMenu Label="..." Variant="Variant.Filled" DisableElevation="true" Size="Size.Small"
                              Dense="true"
-                             EndIcon="@Icons.Filled.KeyboardArrowDown" IconColor="Color.Info" Direction="Direction.Left"
-                             OffsetX="true">
+                             EndIcon="@Icons.Filled.KeyboardArrowDown" IconColor="Color.Info">
                             @if (_canEdit)
                             {
                                 <MudMenuItem OnClick="@(()=>OnView(context))">@ButtonText.EDIT</MudMenuItem>
@@ -118,32 +112,53 @@
                                 <MudMenuItem OnClick="@(()=>OnInvite(context))">Submit Registration Form</MudMenuItem>
                                  <MudMenuItem OnClick="@(()=>OnView(context))">Approve</MudMenuItem>
                             }
-                        </MudMenu>
-                    }
-                    else
-                    {
-                           <MudIconButton Icon="fa-solid fa-eye" Color="Color.Error" OnClick="@(()=>OnView(context))"></MudIconButton>
-                    }
-                    
+                             @if (_canEdit)
+                            {
+
+                                <MudMenuItem OnClick="@(()=>OnView(context))">View</MudMenuItem>
+                            }
+                        </MudMenu>                    
                 </MudTd>
                 <MudTd DataLabel="@L["Id"]">
                     <MudText>@context.Id</MudText>
                 </MudTd>
                 <MudTd DataLabel="@L["Name"]">
-                    <MudText>@context.Name</MudText>      
-                </MudTd>
+                <a href="" @onclick="@(()=>OnView(context))" @onclick:preventDefault>@context.Name</a>
+              
+            </MudTd>
                 <MudTd DataLabel="@L["Category"]">
                     <MudText>@context.Category</MudText>          
                 </MudTd>
                 <MudTd DataLabel="@L["Segment"]">
-                    <MudText>@context.RiskRating</MudText>
+                <MudText>@context.RiskRating</MudText>
                 </MudTd>
                 <MudTd DataLabel="@L["Status"]">
-                    <MudText>@context.RiskRating</MudText>
+                @if (@context.Status==StatusEnum.Active)
+                {
+                    <MudChip Color="Color.Success">@context.Status</MudChip>
+                }
+                else if (@context.Status==StatusEnum.Inactive)
+                {
+                    <MudChip Color="Color.Error">@context.Status</MudChip>
+                }
+                else if (@context.Status==StatusEnum.Pending)
+                {
+                    <MudChip Color="Color.Warning">@context.Status</MudChip>
+                }
+                else if (@context.Status==StatusEnum.Suspended)
+                {
+                    <MudChip Color="Color.Error">@context.Status</MudChip>
+                }
+
+                
+        
                 </MudTd>
                 <MudTd DataLabel="@L["Risk"]">
                     <MudText>@context.RiskRating</MudText>
                 </MudTd>
+            <MudTd DataLabel="@L["Created On"]">
+                <MudText>@context.CreatedDate</MudText>
+            </MudTd>
             </RowTemplate>
             <NoRecordsContent>
                 <MudText>@L["No matching records found"]</MudText>
@@ -244,7 +259,7 @@
     {
         if (supplier != null)
         {
-            _navigationManager.NavigateTo($"/supplier/add/edit/{supplier.Id}");
+            _navigationManager.NavigateTo($"/supplier/addedit/{supplier.Id}");
         }
     }
     private async Task OnInvite(SupplierDto supplier)

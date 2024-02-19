@@ -15,7 +15,7 @@ public  interface IEventService
 
     Task<EventDto> Update(EventDto eventRequest);
 
-    Task<InvitationDto> GetInvitation(Guid id);
+    Task<SupplierQuestionaireDto> GetInvitation(Guid id);
 
     Task<EventDto> Publish(Guid id);
 

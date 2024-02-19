@@ -1,0 +1,50 @@
+@using CleanArchitecture.Blazor.Application.Features.Customers.Commands.AddEdit
+
+@inherits MudComponentBase
+@inject IStringLocalizer<BlazorShared.Models.QuestionaireDto> L
+
+<MudDialog>
+    <DialogContent>
+        <MudForm Model="@model" @ref="@_form">
+            <MudGrid>
+                @*TODO: define mudform that should be edit fields, for example:*@
+                <MudItem xs="12">
+                    <MudTextField Label="Name" @bind-Value="model.Name" For="@(() => model.Name)" Required="true" RequiredError="@L["name is required!"]"></MudTextField>
+                </MudItem> 
+                 <MudItem xs="12">
+                    <MudTextField Label="Description" @bind-Value="model.Description" For="@(() => model.Description)" Required="true" RequiredError="@L["name is required!"]"></MudTextField>
+                </MudItem> 
+                <MudItem xs="12"> 
+                        <MudTextField Label="Position" Lines="3" For="@(() => model.Description)" @bind-Value="model.Description"></MudTextField>
+                </MudItem> 
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">@ButtonText.CANCEL</MudButton>
+        <MudButton Color="MudBlazor.Color.Primary" OnClick="Submit">@ButtonText.OK</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    MudForm? _form;
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; } = default!;
+
+
+
+    [EditorRequired][Parameter] public BlazorShared.Models.QuestionaireDto model { get; set; } = null!;
+
+    async Task Submit()
+    {
+        if(_form is not null) {
+
+            await _form.Validate();
+            if (_form.IsValid)
+            {
+                MudDialog.Close(DialogResult.Ok(model));
+            }
+        }
+    }
+    void Cancel() => MudDialog.Cancel();
+}

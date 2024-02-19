@@ -3,7 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using BlazorShared.Models;
+using CleanArchitecture.Blazor.Application.Common.Interfaces;
+using CleanArchitecture.Blazor.Domain.Entities;
+using CleanArchitecture.Blazor.Infrastructure.Persistence.Migrations;
+using EasyCaching.Core;
+using Microsoft.EntityFrameworkCore;
+using Priority = BlazorShared.Models.Priority;
 
 namespace BlazorShared.Services;
 
@@ -11,14 +18,26 @@ namespace BlazorShared.Services;
 public class QuestionaireService: IQuestionaireService
 {
 
-    public QuestionaireService()
-    {
+    private readonly IEasyCachingProviderFactory _factory;
+    private readonly IEasyCachingProvider _provider;
+    private readonly IApplicationDbContext _context;
+    private readonly IMapper _mapper;
 
+    public QuestionaireService(IEasyCachingProviderFactory factory, IApplicationDbContext context, IMapper mapper)
+    {
+        _factory = factory;
+        _provider = _factory.GetCachingProvider("default");
+        _context = context;
+        _mapper = mapper;
     }
 
     public async Task<QuestionaireDto> Get(Guid questionaireId)
     {
-        return new QuestionaireDto() { Sections = GetSections() };
+        //var entityQuestionaires =  _context.Questionaires.Include(x=>x.Sections).Where(x => x.Id == questionaireId).FirstOrDefault();
+        //var domainQuestionaire = _mapper.Map<QuestionaireDto>(entityQuestionaires);
+        //return domainQuestionaire;
+
+        return new QuestionaireDto() { Sections = GetSections(), Name="Test",Description = "Data privacy questionaire", QuestionaireType = QuestionaireType.GeneralSupplierQuestionaire };
     }
 
     private List<SectionDto> GetSections()
@@ -82,7 +101,12 @@ QuestionAnswers.Add(new QuestionDto() { QuestionLabel = "The data centre hosting
 
     public async Task<List<QuestionaireDto>> Search(QuestionaireSearchRequest questionaireSearchRequest)
     {
-        return new List<QuestionaireDto>() { await Get(Guid.NewGuid()) };
+        //return await Get(Guid.NewGuid());
+        var s = new List<QuestionaireDto>
+        {
+            await Get(Guid.NewGuid())
+        };// { new QuestionaireDto() {Name="Popia Questionaire",Description="Used to assess the risk for data privacy"  }, new QuestionaireDto() {Name="Cloud Questionaire", Description="Used to assesss cloud risk" } };
+        return s;
     }
 
     private List<QuestionDto> GetPersonalPreferenceQuestions()
@@ -135,5 +159,32 @@ QuestionAnswers.Add(new QuestionDto() { QuestionLabel = "The data centre hosting
         QuestionAnswers.Add(new QuestionDto() { QuestionLabel = "Data back ups (Frequency and location)?", AnswerType = new YesNoAnswerDto() { } });
 
         return QuestionAnswers;
+    }
+
+    public async Task<QuestionaireDto> Create(QuestionaireDto questionaire)
+    {
+        try
+        {
+           
+            var entityQuestionaire = _mapper.Map<Questionaire>(questionaire);
+
+            _context.Questionaires.Add(entityQuestionaire);
+            await _context.SaveChangesAsync(new CancellationToken());
+        }
+        catch (Exception ex)
+        {
+
+            throw;
+        }
+
+
+        return   questionaire;
+    }
+
+
+
+    public Task<QuestionaireDto> AddQuestion(Guid questionaireId, QuestionDto question)
+    {
+        throw new NotImplementedException();
     }
 }

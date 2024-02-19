@@ -17,7 +17,7 @@ public class EventDto
 
     public EventStatus EventStatus { get; set; } = EventStatus.Draft;
 
-    public List<InvitationDto> Invitations { get; set; } = new List<InvitationDto>();
+    public List<SupplierQuestionaireDto> Invitations { get; set; } = new List<SupplierQuestionaireDto>();
 
 
     public void PublishEvent()

@@ -9,6 +9,9 @@ public enum InvitationStatusEnum
 {
     Draft,
     InvitationSent,
+    Accepted,
+    Withdrawn,
+    Declined,
     InProgress,
     ResponseCompleted
 

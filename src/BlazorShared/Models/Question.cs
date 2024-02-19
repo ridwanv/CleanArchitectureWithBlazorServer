@@ -10,7 +10,7 @@ namespace BlazorShared.Models;
 
 public class QuestionaireSearchRequest
 {
-
+    public QuestionaireType QuestionaireType { get; set; }
 }
 
 public class QuestionaireRequest

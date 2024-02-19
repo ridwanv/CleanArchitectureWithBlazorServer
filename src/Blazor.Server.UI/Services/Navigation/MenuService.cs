@@ -69,6 +69,21 @@ public class MenuService : IMenuService
                             PageStatus = PageStatus.Completed
                         }
                     }
+                },
+                              new()
+                {
+                    IsParent = true,
+                    Title = "Configuration",
+                    Icon = Icons.Material.Filled.LocationCity,
+                    MenuItems = new List<MenuSectionSubItemModel>
+                    {
+                        new()
+                        {
+                            Title = "Questionaires",
+                            Href = "/questionaire/index",
+                            PageStatus = PageStatus.Completed
+                        }
+                    }
                 }
                 //new()
                 //{

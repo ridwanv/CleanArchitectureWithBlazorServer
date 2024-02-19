@@ -1,68 +1,75 @@
 @using BlazorShared.Models
+@using Microsoft.AspNetCore.Components.Forms
 
 <MudGrid>
-  
-        @if(AnswerType is ShortTextDto singleAnswer)
+   <MudItem xs="6">
+        @if(AnswerType is ShortTextDto answerType)
         {
-           <MudItem xs="12">
-                <MudTextField T="string" Label=""  @bind-Value="@singleAnswer.Answer" @onchange="OnChange" Margin="Margin.Dense"/>
-           </MudItem>
+          
+            <MudTextField T="string" Label="" @bind-Value="@QuestionResponse.Answer" Margin="Margin.Dense" Variant="Variant.Text" />
+      
         }
 
-    @if (AnswerType is MultipleChoiceDto multipleChoiceAnswer)
+    @if (AnswerType is MultipleChoiceDto multipleChoiceAnswerType && QuestionResponse is QuestionResponseMultipleChoiceDto multiChoiceAnswer)
     {
-        <MudItem xs="3">
-                <MudSelect T="string" Label="@Question" AnchorOrigin="Origin.BottomCenter" @bind-Text="@multipleChoiceAnswer.Answer" @bind-Value="@multipleChoiceAnswer.Answer">
-                    @foreach (var item in multipleChoiceAnswer.Choices)
+   
+            <MudSelect T="string" Label="@Question" MultiSelection="true" AnchorOrigin="Origin.BottomCenter" @bind-bind-Value="@multiChoiceAnswer.Answers">
+                @foreach (var item in multipleChoiceAnswerType.Choices)
                     {
                         <MudSelectItem Value="@item.Key" />
                     }
                 </MudSelect>
-         </MudItem>
+  
     }
 
-           @if(AnswerType is YesNoAnswerDto yesNoAnswer)
+    @if (AnswerType is YesNoAnswerDto yesNoAnswerType && QuestionResponse is QuestionResponseYesNoDto yesNoAnswer)
         {
-            <MudItem xs="3">
+        
                     <MudField Label="@Question" Variant="Variant.Text" InnerPadding = "false" DisableUnderLine = "true">
                         <MudRadioGroup T="YesNoEnum" @bind-SelectedOption="@yesNoAnswer.Answer" @onchange="OnChange">
                             <MudRadio Option="YesNoEnum.Yes" Color="Color.Primary">Yes </MudRadio>
                              <MudRadio Option="YesNoEnum.No" Color="Color.Primary">No</MudRadio>
                         </MudRadioGroup>
                     </MudField>
-            </MudItem>
+        
         }
 
-        @if(AnswerType is EvaluationDto criteriaAnswer)
+    @if (AnswerType is EvaluationDto criteriaAnswerType && QuestionResponse is QuestionResponseEvaluationDto criteriaAnswer)
         {
-            <MudItem xs="3">
-                  <MudSelect T="Assessment" Label="@Question" AnchorOrigin="Origin.BottomCenter"   @bind-Value="@criteriaAnswer.SelfAssessment">
+        
+                  <MudSelect T="Assessment" Label="@Question" AnchorOrigin="Origin.BottomCenter" @bind-Value="@criteriaAnswer.SelfAssessment">
                       <MudSelectItem T="Assessment"  Value="Assessment.NotApplicable"/>
                       <MudSelectItem T="Assessment"  Value="Assessment.DoNotComply"/>
                       <MudSelectItem T="Assessment"  Value="Assessment.PartiallyComply"/>
                       <MudSelectItem T="Assessment"  Value="Assessment.FullyComply"/>
                 </MudSelect>
-            </MudItem>
+      
         }
 
-<MudItem xs="2">
+    @if(AnswerType.AllowAttachment)
+        {
+            <MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged="UploadFiles">
+                <ButtonTemplate>
+                    <MudButton HtmlTag="label"
+                               Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.CloudUpload"
+                               for="@context.Id">
+                        Multiple Files
+                    </MudButton>
+                </ButtonTemplate>
+            </MudFileUpload>
 
+        }
 
+    </MudItem>
+    <MudItem xs="6">
+        <MudTextField T="string" Label="Notes/Comments" Variant="Variant.Outlined" @bind-Value="@QuestionResponse.AnswerMotivation" Lines="2" Margin="Margin.Dense" />
+    </MudItem>
 
-
-
-
-
-
-
-
-
-
-
- </MudItem>
- <MudItem xs="10">
-     <MudTextField T="string" Label="Answer/Notes" Variant="Variant.Outlined" @bind-Value="@AnswerType.AnswerMotivation" Lines="1" />
- </MudItem>
+@*  <MudItem xs="12">
+        <MudTextField T="string" Label="Notes" Variant="Variant.Outlined" @bind-Value="@QuestionResponse.AnswerMotivation" Lines="1" />
+ </MudItem> *@
  </MudGrid>
  @*<MudDivider DividerType="DividerType.Middle" Class="my-1"/>*@
 @code {
@@ -73,13 +80,26 @@
     [Parameter]
     public AnswerFormatDto AnswerType { get; set; }
 
+    [Parameter]
+    public QuestionResponseDto QuestionResponse { get; set; }
 
+    IList<IBrowserFile> files = new List<IBrowserFile>();
 
      [Parameter] public EventCallback<object> ValueChanged { get; set; }
 
         async void OnChange(ChangeEventArgs e)
     {
        await ValueChanged.InvokeAsync(e.Value);
+    }
+
+
+    private void UploadFiles(IReadOnlyList<IBrowserFile> files)
+    {
+        foreach (var file in files)
+        {
+            this.files.Add(file);
+        }
+        //TODO upload the files to the server
     }
 
 

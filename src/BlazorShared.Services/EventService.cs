@@ -1,11 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using AutoMapper;
 using BlazorShared.Events;
 using BlazorShared.Models;
 using CleanArchitecture.Blazor.Application.Common.Interfaces;
-using DocumentFormat.OpenXml.Office2010.Excel;
 using EasyCaching.Core;
 using MediatR;
-using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace BlazorShared.Services;
 [ScopedRegistration]
@@ -66,16 +67,16 @@ public class EventService : IEventService
         return request;
     }
 
-    public async Task<InvitationDto> GetInvitation(Guid id)
+    public async Task<SupplierQuestionaireDto> GetInvitation(Guid id)
     {
         string cacheKey = $"invitation:{id}";
-        var results = await _provider.GetAsync<Models.InvitationDto>(cacheKey);
+        var results = await _provider.GetAsync<Models.SupplierQuestionaireDto>(cacheKey);
         if(results.HasValue)
         {
             cacheKey = $"response:{id}";
             var questionaire = _provider.GetAsync<Models.QuestionaireDto>(cacheKey).Result;
-            if (questionaire.HasValue)
-                results.Value.Questionaire = questionaire.Value;
+            //if (questionaire.HasValue)
+            //    results.Value = questionaire.Value;
         }
         return results.Value;
     }
@@ -99,8 +100,8 @@ public class EventService : IEventService
             {
                 cacheKey = $"response:{invite.Id}";
                 var questionaire = _provider.GetAsync<Models.QuestionaireDto>(cacheKey).Result;
-                if (questionaire.HasValue)
-                    invite.Questionaire = questionaire.Value;
+                //if (questionaire.HasValue)
+                //    invite.Questionaire = questionaire.Value;
             }
             return results.Value;
         }
@@ -148,11 +149,11 @@ public class EventService : IEventService
 
                 foreach (var invite in eventRequest.Invitations)
                 {
-                    invite.InvitationStatus = InvitationStatus.InvitationSent;
-                    invite.Questionaire = eventRequest.Questionaire;
+                    invite.InvitationStatus = CleanArchitecture.Blazor.Domain.Enums.InvitationStatusEnum.Accepted;
+                    //invite.Questionaire = eventRequest.Questionaire;
                     cacheKey = $"invitation:{invite.Id}";
-                    _provider.Set<Models.InvitationDto>(cacheKey, invite, new TimeSpan(1, 0, 0));
-                    await _publisher.Publish(new CreatedEvent<InvitationDto>(invite));
+                    _provider.Set<Models.SupplierQuestionaireDto>(cacheKey, invite, new TimeSpan(1, 0, 0));
+                    await _publisher.Publish(new CreatedEvent<SupplierQuestionaireDto>(invite));
                 }
 
             }

@@ -20,7 +20,7 @@ public class Supplier : AuditableEntity
 
     public ICollection<Contact> Contacts { get; set; }
 
-   //public List<Questionaire> OnboardingQuestionaires { get; set; }
+    public ICollection<SupplierQuestionaire> SupplierQuestionaires { get; set; } 
 
    // public List<Attachment> Attachments { get; set; }
 

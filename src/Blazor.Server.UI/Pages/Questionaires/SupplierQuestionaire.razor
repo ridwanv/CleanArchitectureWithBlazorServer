@@ -1,0 +1,197 @@
+﻿@layout UnauthenticatedLayout
+@page "/supplier/Questionaire/{supplierQuestionaireId:guid}"
+@attribute [AllowAnonymous]
+@using BlazorComponents.Components
+@using BlazorShared.Models
+@using BlazorShared.Services
+@inject ISupplierService _supplierService;
+
+
+<MudAppBar Elevation="1">
+    <MudIcon Icon="@Icons.Custom.Brands.GitHub" Title="GitHub" />
+    <MudButton Variant="Variant.Filled" Color="Color.Success">Messages</MudButton>
+    <MudSpacer />
+    <MudText Typo="Typo.body1">@SupplierQuestionaireDto.Supplier.Name</MudText>
+        <MudDivider Vertical="true" DividerType="DividerType.Middle" />
+
+
+    @if(SupplierQuestionaireDto.InvitationStatus ==  CleanArchitecture.Blazor.Domain.Enums.InvitationStatusEnum.InvitationSent)
+    {
+        <MudFab StartIcon="@Icons.Material.Filled.Save" Color="Color.Primary" Label="Participate" Size="Size.Small" OnClick="Participate" />
+    }
+    @if (SupplierQuestionaireDto.InvitationStatus == CleanArchitecture.Blazor.Domain.Enums.InvitationStatusEnum.Accepted)
+    {
+
+        <MudButton Variant="Variant.Filled" Class="ma-1" EndIcon="@Icons.Material.Filled.Save" Color="Color.Info" Size="Size.Small" OnClick="Save">Save</MudButton>
+        <MudButton Variant="Variant.Filled" Class="ma-1" EndIcon="@Icons.Material.Filled.Send" Color="Color.Primary" OnClick="Submit" Size="Size.Small">Submit</MudButton>
+        <MudButton Variant="Variant.Filled" Class="ma-1" EndIcon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small">Withdraw</MudButton>
+
+    }
+</MudAppBar>
+
+
+
+
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudCard>
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">@SupplierQuestionaireDto.Questionaire.Name</MudText>
+                    </CardHeaderContent>
+                    <CardHeaderActions>
+                        <MudIconButton Icon="@Icons.Material.Filled.Info" Color="Color.Default" />
+                    </CardHeaderActions>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Typo="Typo.body1">@SupplierQuestionaireDto.Questionaire.Description</MudText>
+                    <MudGrid>
+                        <MudItem xs="3">
+                            <MudTextField T="DateTime?" Format="yyyy-MM-dd" Label="Start Date" InputType="InputType.Date" ReadOnly="true" />
+
+                        </MudItem>
+                        <MudItem xs="3">
+                            <MudTextField T="DateTime?" Format="yyyy-MM-dd" Label="End Date" InputType="InputType.Date" ReadOnly="true" />
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudText Typo="Typo.h6">Introduction</MudText>
+                            <MudText Typo="Typo.body1">Introduction to the questionaire</MudText>
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudText Typo="Typo.h6">Documentation</MudText>
+                        </MudItem>
+                    </MudGrid>
+
+                </MudCardContent>
+
+            </MudCard>
+
+    </MudItem>
+
+
+
+
+    <MudItem xs="12" lg="12">
+    <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+            @foreach (var questionSection in SupplierQuestionaireDto.Questionaire.Sections)
+            {
+                <MudTabPanel Text="@questionSection.SectionName">
+                         <MudItem xs="12">
+                              <MudGrid>  
+                        @foreach (var item in questionSection.Questions)
+                        {     
+                            
+                            var questionResponse = SupplierQuestionaireDto.QuestionResponses.FirstOrDefault(x => x.QuestionId == item.Id);
+
+
+                        
+                                <MudItem xs="12">
+                                    <MudText Typo="Typo.body2"> <b>@item.QuestionLabel</b></MudText>
+                                        <QuestionAnswer Question="@item.QuestionLabel" AnswerType="@item.AnswerType" QuestionResponse="questionResponse"> </QuestionAnswer>
+                                    </MudItem>
+                                <MudItem xs="12">
+                                    <MudDivider DividerType="DividerType.FullWidth" />
+                                </MudItem>
+                               
+
+                          
+
+@*                             <MudCard>
+                                <MudCardHeader>
+                                    <CardHeaderContent>
+                                        <MudText Typo="Typo.h6">@item.QuestionLabel</MudText>
+                                    </CardHeaderContent>
+                                    <CardHeaderActions>
+                                        <MudIconButton Icon="@Icons.Material.Filled.Info" Color="Color.Default" />
+                                    </CardHeaderActions>
+                                </MudCardHeader>
+                                    <QuestionAnswer Question="@item.QuestionLabel" AnswerType="@item.AnswerType" QuestionResponse="questionResponse"> </QuestionAnswer> *@
+
+
+@*                                 @if(item is AssessmentQuestionDto assessmentQuestion)
+                                {
+                                    <MudGrid>  
+                                        <MudItem xs="2">
+                                            <MudSelect T="Assessment" Label="Internal Assessment" AnchorOrigin="Origin.BottomCenter"   @bind-Value="assessmentQuestion.InternalAssessment">
+                                                          <MudSelectItem T="Assessment"  Value="Assessment.NotApplicable"/>
+                                                          <MudSelectItem T="Assessment"  Value="Assessment.DoNotComply"/>
+                                                          <MudSelectItem T="Assessment"  Value="Assessment.PartiallyComply"/>
+                                                          <MudSelectItem T="Assessment"  Value="Assessment.FullyComply"/>
+                                                </MudSelect>
+                                        </MudItem>
+                                        <MudItem xs="6">
+                                            <MudTextField T="string" Label="Answer/Notes" Variant="Variant.Outlined" @bind-Value="@assessmentQuestion.InternalNote" Lines="1" />
+                                        </MudItem>
+                                        <MudItem xs="4">
+                                            <MudAvatar Color="Color.Success" Variant="Variant.Outlined">@assessmentQuestion.Score</MudAvatar>
+                                        </MudItem>
+                                    </MudGrid>
+                                                 
+                                               <h5> @assessmentQuestion.Score</h5>
+                                
+                                } *@
+                                   
+
+                            @*  </MudCard> *@
+       
+                        }
+                        </MudGrid>
+                         </MudItem>
+                  </MudTabPanel>
+            }
+    </MudTabs>
+
+    </MudItem>
+</MudGrid>
+
+
+@code {
+
+    [Parameter]
+    public Guid SupplierQuestionaireId { get; set; }
+
+    [Parameter]
+    public bool IsInternalAssessment { get; set; }
+
+    //https://stackoverflow.com/questions/61845181/how-to-use-bind-value-in-a-dynamic-form
+    //https://github.com/lucianbumb/BlazorDynamicForm/blob/master/BlazorDynamicForm/Pages/DynamicField.razor
+    // BlazorShared.Models.QuestionaireDto _questionaire = new BlazorShared.Models.QuestionaireDto();
+
+    // List<BlazorShared.Models.QuestionaireDto> Questionaires = new List<BlazorShared.Models.QuestionaireDto>();
+
+    // private BlazorShared.Models.QuestionaireDto Questionaire = new BlazorShared.Models.QuestionaireDto();
+
+    public SupplierQuestionaireDto SupplierQuestionaireDto { get; set; }
+
+    void OnValueChanged(object e, string prop)
+    {
+
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        SupplierQuestionaireDto = await _supplierService.RetrtrieveSupplierQuestionaire(SupplierQuestionaireId);
+        // _questionaire = SupplierQuestionaireDto.Questionaire;
+        //Questionaires = await questionaireService.Search(new QuestionaireSearchRequest());
+        //_questionaire = Questionaires.FirstOrDefault();
+    }
+
+    public void Save()
+    {
+        _supplierService.SaveSupplierQuestioinResponses(SupplierQuestionaireDto);
+
+    }
+
+    public void Submit()
+    {
+        _supplierService.SaveSupplierQuestioinResponses(SupplierQuestionaireDto);
+
+    }
+
+    public void Participate()
+    {
+        SupplierQuestionaireDto.InvitationStatus = CleanArchitecture.Blazor.Domain.Enums.InvitationStatusEnum.Accepted;
+        _supplierService.Participate(SupplierQuestionaireDto.Id);
+    }
+}

@@ -2,9 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Reflection;
+using System.Reflection.Emit;
 using CleanArchitecture.Blazor.Infrastructure.Extensions;
 using CleanArchitecture.Blazor.Infrastructure.Persistence.Interceptors;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace CleanArchitecture.Blazor.Infrastructure.Persistence;
 
@@ -28,6 +30,18 @@ public class ApplicationDbContext : IdentityDbContext<
     }
 
     public DbSet<Supplier> Suppliers { get; set; }
+
+    //public DbSet<QuestionResponseShortText> QuestionResponseShortTexts { get; set; }
+    //public DbSet<QuestionResponseLongText> QuestionResponseLongTexts { get; set; }
+    //public DbSet<QuestionResponseMultipleChoice> QuestionResponseMultipleChoices { get; set; }
+    //public DbSet<QuestionResponseDateTime> QuestionResponseDateTimes { get; set; }
+    public DbSet<QuestionResponse> QuestionResponses { get; set; }
+    public DbSet<Question> Questions { get; set; }
+
+
+    public DbSet<Questionaire> Questionaires { get; set; }
+
+    public DbSet<SupplierQuestionaire> SupplierQuestionaires { get; set; }
     public DbSet<Contact> Contacts { get; set; }
 
     public DbSet<Project> Projects { get; set; }
@@ -56,6 +70,16 @@ public class ApplicationDbContext : IdentityDbContext<
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         builder.ApplyGlobalFilters<ISoftDelete>(s => s.Deleted == null);
+
+
+   
+        //  builder.Entity<SupplierQuestionaire>()
+        //.HasKey(bc => new { bc.SupplierId, bc.QuestionaireId });
+
+        //    builder.Entity<QuestionResponse>()
+        //.HasKey(bc => new { bc.SupplierQuestionaireId, bc.QuestionId });
+
+
 
     }
 

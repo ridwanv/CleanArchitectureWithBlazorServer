@@ -1,0 +1,36 @@
+@using Blazor.Server.UI.Services
+@inherits LayoutComponentBase
+
+@inject IStringLocalizer<SharedResource> L
+@inject LayoutService _layoutService
+
+<MudDialogProvider />
+<MudSnackbarProvider />
+<MudThemeProvider @ref="@_mudThemeProvider" Theme="@_layoutService.CurrentTheme" IsDarkMode="@_layoutService.IsDarkMode" IsDarkModeChanged="@_layoutService.SetDarkMode" />
+
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudText Typo="Typo.h5" Class="ml-3">Application</MudText>
+        <MudSpacer />
+        <MudText Typo="Typo.h5" Class="ml-3">Application</MudText>
+        <MudDivider Vertical="true" />
+        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
+    </MudAppBar>
+    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+        @*NavMenu*@
+    </MudDrawer>
+    <MudMainContent>
+        @*Body*@
+    </MudMainContent>
+</MudLayout>
+@code {
+
+    private MudThemeProvider? _mudThemeProvider;
+    bool _drawerOpen = true;
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+}

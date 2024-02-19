@@ -1,0 +1,231 @@
+@page "/questionaire/index"
+
+@using BlazorShared.Models
+@using BlazorShared.Services
+@using FluentEmail.Core
+@using FluentEmail.Razor
+@using HashidsNet
+@using System.Globalization
+@inject IQuestionaireService _questionaireService;
+
+
+
+
+@inject IJSRuntime JS
+@inject IStringLocalizer<Index> L
+@attribute [Authorize(Policy = Permissions.Products.View)]
+<PageTitle>@Title</PageTitle>
+<style>
+    .mud-table-toolbar {
+        height: 84px !important;
+    }
+</style>
+<MudTable ServerData="@(new Func<TableState, Task<TableData<QuestionaireDto>>>(ServerReload))"
+                  FixedHeader="true"
+                  FixedFooter="true"
+                  Virtualize="true"
+                  Height="calc(100vh - 315px)"
+                  Loading="@_loading"
+                  SortLabel="@L["Sort By"]"
+                  MultiSelection="false" @bind-SelectedItem="_selectedItem"
+                  Hover="true" @ref="_table" Dense=true>
+
+                <ToolBarContent>
+                <div class="justify-start pt-3">
+                    <MudText Typo="Typo.h6">@L["Projects"]</MudText>
+                    <MudHidden Breakpoint="Breakpoint.SmAndDown">
+                        <MudButton DisableElevation Variant="Variant.Outlined"
+                                   Size="Size.Small"
+                                   Disabled="@_loading"
+                                   OnClick="@(()=> OnRefresh())"
+                                   StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Primary"
+                                   Style="margin-right: 4px; margin-bottom:4px">@L["Refresh"]</MudButton>
+                        @if (_canRequest)
+                        {
+                            
+
+                            <MudButton DisableElevation Variant="Variant.Outlined" Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.PostAdd"
+                                   Disabled="_loading"
+                                   Size="Size.Small"
+                                   OnClick="@(()=>AddProject())"
+                                   Style="margin-right: 4px; margin-bottom:4px"
+                                   IconColor="Color.Surface">@L["Add Project"]</MudButton>
+
+
+                        }
+
+
+
+                    </MudHidden>
+                </div>
+                <MudSpacer />
+                <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Value="@_searchString" Placeholder="Search" Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            </ToolBarContent>
+ 
+            <HeaderContent>
+                <MudTh>...</MudTh>
+                <MudTh>@L["Questionaire Name"]</MudTh>
+                <MudTh>@L["Description"]</MudTh>
+            </HeaderContent>
+
+
+            <RowTemplate>
+            <MudTd DataLabel="@ButtonText.ACTIONS">
+
+                <MudMenu Label="..." Variant="Variant.Filled" DisableElevation="true" Size="Size.Small"
+                         Dense="true"
+                         EndIcon="@Icons.Filled.KeyboardArrowDown" IconColor="Color.Info">
+                    @if (_canEdit)
+                {
+                    <MudMenuItem OnClick="@(()=>OnView(context))">@ButtonText.EDIT</MudMenuItem>
+                }
+                @if (_canDelete)
+                {
+                    <MudMenuItem OnClick="@(()=>OnView(context))">@ButtonText.DELETE</MudMenuItem>
+                }
+                @if (_canApprove)
+                {
+                    <MudMenuItem OnClick="@(()=>OnView(context))">Approve</MudMenuItem>
+                }
+                @if (_canEdit)
+                {
+
+                    <MudMenuItem OnClick="@(()=>OnView(context))">View</MudMenuItem>
+                }
+            </MudMenu>
+        </MudTd>
+                <MudTd DataLabel="@L["Project Name"]">
+                 
+                 <a href="" @onclick="@(()=>OnView(context))" @onclick:preventDefault>@context.Name</a>
+                </MudTd>
+
+                <MudTd DataLabel="@L["Description"]">
+                    <MudText>@context.Description</MudText>
+                </MudTd>
+
+
+            </RowTemplate>
+            <NoRecordsContent>
+                <MudText>@L["No matching records found"]</MudText>
+            </NoRecordsContent>
+            <LoadingContent>
+                <MudText>@L["Loading..."].</MudText>
+            </LoadingContent>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+    @code {
+    public string? Title { get; private set; }
+    private HashSet<QuestionaireDto> _selectedItems = new HashSet<QuestionaireDto>();
+    private QuestionaireDto _selectedItem = new QuestionaireDto();
+    private MudTable<QuestionaireDto> _table = default!;
+    private int _totalItems;
+    private string _searchString = string.Empty;
+    private bool _loading;
+    private bool _uploading;
+    private bool _downloading;
+
+
+    [Inject]
+    private Hashids hashids { get; set; } = default!;
+    [Inject]
+    private NavigationManager _navigationManager { get; set; } = default!;
+    [Inject]
+    private IFluentEmail _fluentEmail { get; set; }
+
+    [CascadingParameter]
+    protected Task<AuthenticationState> AuthState { get; set; } = default!;
+
+
+
+    private bool _canSearch;
+    private bool _canCreate;
+    private bool _canEdit;
+    private bool _canDelete;
+    private bool _canApprove;
+    private bool _canImport;
+    private bool _canExport;
+    private bool _canRequest;
+    protected override async Task OnInitializedAsync()
+    {
+        Title = L["Visitors"];
+        var state = await AuthState;
+        _canCreate = (await AuthService.AuthorizeAsync(state.User, Permissions.Customers.Create)).Succeeded;
+        _canSearch = (await AuthService.AuthorizeAsync(state.User, Permissions.Customers.Search)).Succeeded;
+        _canEdit = (await AuthService.AuthorizeAsync(state.User, Permissions.Customers.Edit)).Succeeded;
+        _canDelete = (await AuthService.AuthorizeAsync(state.User, Permissions.Customers.Delete)).Succeeded;
+        _canApprove = (await AuthService.AuthorizeAsync(state.User, Permissions.Customers.View)).Succeeded;
+        _canRequest = (await AuthService.AuthorizeAsync(state.User, Permissions.Customers.View)).Succeeded;
+        _canImport = false;
+        _canExport = false;
+
+    }
+
+
+    private async Task<TableData<QuestionaireDto>> ServerReload(TableState state)
+    {
+        var projects = await _questionaireService.Search(new QuestionaireSearchRequest() { });
+        return new TableData<QuestionaireDto>() {TotalItems = projects.Count, Items = projects };
+
+
+
+    }
+
+    private void OnFilterChanged(string s)
+    {
+        InvokeAsync(async () =>
+        {
+            await _table.ReloadServerData();
+        });
+    }
+    private async Task AddProject()
+    {
+        var q = await _questionaireService.Get(Guid.NewGuid());
+        var s = await _questionaireService.Create(q);
+        // var model = new QuestionaireDto();
+        // var parameters = new DialogParameters { ["model"] = new QuestionaireDto() };
+        // var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true,Position = DialogPosition.Center };
+        // var dialog = DialogService.Show<_QuestionaireFormDialog>(L["Create a new questionaire"], parameters, options);
+        // var result = await dialog.Result;
+        // var projectRequest = (QuestionaireDto)result.Data;
+        // if (!result.Cancelled)
+        // {
+        //    // _questionaireService.Create(projectRequest);
+        //     _table.ReloadServerData();
+        //     Snackbar.Add($" Created {projectRequest.Name}", MudBlazor.Severity.Info);
+        
+        //     //_navigationManager.NavigateTo($"/suppliers/{(supplierRequest.Id}");
+        // }
+        // else
+        // {
+        //     Snackbar.Add($"{L["Failed"]}", MudBlazor.Severity.Info);
+        // }
+    }
+
+    private async Task OnView(QuestionaireDto questionaire)
+    {
+        if (questionaire != null)
+        {
+            _navigationManager.NavigateTo($"/questionaire/{questionaire.Id}");
+        }
+    }
+
+    private async Task OnSearch(string text)
+    {
+        _selectedItems = new();
+        _searchString = text;
+        await _table.ReloadServerData();
+    }
+    private async Task OnRefresh()
+    {
+        _selectedItems = new();
+        _searchString = string.Empty;
+        await _table.ReloadServerData();
+    }
+
+
+
+    }

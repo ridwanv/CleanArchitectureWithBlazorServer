@@ -1,20 +1,25 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+      <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Entities\**" />
     <Compile Remove="Services\**" />
+    <EmbeddedResource Remove="Entities\**" />
     <EmbeddedResource Remove="Services\**" />
+    <None Remove="Entities\**" />
     <None Remove="Services\**" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Remove="Models\BankVerification.cs" />
     <Compile Remove="Models\Batch.cs" />
+    <Compile Remove="Models\CustomResolver.cs" />
     <Compile Remove="Models\FICA.cs" />
     <Compile Remove="Models\PersonIdentification.cs" />
     <Compile Remove="Models\PersonIdentificationRequest.cs" />
@@ -25,6 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="BlazorTemplater" Version="1.5.1" />
     <PackageReference Include="EasyCaching.InMemory" Version="1.6.0" />
     <PackageReference Include="EnyimMemcachedCore" Version="2.5.4" />
     <PackageReference Include="JsonSubTypes" Version="2.0.1" />
@@ -52,11 +58,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Domain\Domain.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Connected Services\" />
+    <Folder Include="EmailTemplates\" />
     <Folder Include="Validators\" />
   </ItemGroup>
 

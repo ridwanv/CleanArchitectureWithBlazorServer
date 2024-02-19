@@ -1,6 +1,7 @@
 ﻿@page "/events/add/{projectId:guid?}"
 @page "/events/edit/{eventId:guid}"
 
+@using Blazor.Server.UI.Pages.Questionaires
 @using Blazor.Server.UI.Services.Notifications;
 @using BlazorShared.Models
 @using BlazorShared.Services
@@ -31,62 +32,32 @@
 
 
 
+        <MudGrid>
+            <MudItem xs="6" class="column" >
+            <MudPaper FullWidth="true" class="paper pa-4">
+                    <h3>Event Information</h3>
+                    <MudTextField @bind-Value="model.EventName" For="@(() => model.EventName)" T="string" Label="Event Name" Required="true" RequiredError="Supplier name is required!" />
+                    <MudTextField @bind-Value="model.EventType" For="@(() => model.EventType)" T="EventType" Label="Event Type" Required="true" RequiredError="Tax Number is required!" />
+                    <MudChip Variant="Variant.Text" Color="model.EventStatus==EventStatus.Draft? Color.Default:model.EventStatus==EventStatus.Active?Color.Success: Color.Info">@model.EventStatus</MudChip>
+
+                </MudPaper>
+            </MudItem>
+        <MudItem xs="6" class="column">
+            <MudPaper FullWidth="true" class="paper pa-4">
+                    <h3>Settings</h3>
+                    <MudDatePicker Label="End Date" Editable="true" @bind-Date="model.EndDate" Mask="@(new DateMask("dd/MM/yyyy"))" DateFormat="dd/MM/yyyy" Placeholder="dd/MM/yyyy" />
+
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+
+
+
+
 <MudGrid>
 
-        <MudItem xs="6">
-            <MudPaper Class="mud-width-full py-8 pa-4">
-                <h3>Event Information</h3>
-                <MudTextField @bind-Value="model.EventName"  For="@(() => model.EventName)" T="string" Label="Event Name" Required="true" RequiredError="Supplier name is required!"/>
-                <MudTextField @bind-Value="model.EventType" For="@(() => model.EventType)" T="EventType" Label="Event Type" Required="true" RequiredError="Tax Number is required!"/>
-                <MudChip Variant="Variant.Text" Color="model.EventStatus==EventStatus.Draft? Color.Default:model.EventStatus==EventStatus.Active?Color.Success: Color.Info">@model.EventStatus</MudChip>  
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="6">
-            <MudPaper Class="mud-width-full py-8 pa-4">
-                <h3>Settings</h3>
-            <MudDatePicker Label="End Date" Editable="true" @bind-Date="model.EndDate" Mask="@(new DateMask("dd/MM/yyyy"))" DateFormat="dd/MM/yyyy" Placeholder="dd/MM/yyyy" />
-      
-            </MudPaper>
-        </MudItem>
-
-       @*  <MudItem xs="12">
-        <MudPaper Class="pa-4">
-            <h3>Selected Suppliers</h3>
-            <MudTable Items="model.Suppliers" Dense="true" Hover="true"
-              @bind-SelectedItem="SelectedSupplier" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
-              OnCommitEditClick="@(() => Snackbar.Add("Commit Edit Handler Invoked"))" @ref="_tableSuppliers"
-               IsEditRowSwitchingBlocked="true">
-
-                <HeaderContent>
-                    <MudTh>Supplier</MudTh>
-                    <MudTh>Contact Email</MudTh>
-                    <MudTh>Status</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Supplier">@context.Name</MudTd>
-                    <MudTd DataLabel="Contact Email">@context.PrimaryContact.EmailAddress</MudTd>
-                    <MudTd DataLabel="Status"> </MudTd>
-
-                </RowTemplate>
-                <RowEditingTemplate>
-                    <MudTd DataLabel="Supplier">
-                        <MudTextField @bind-Value="@context.Name" Required />
-                    </MudTd>
-                    <MudTd DataLabel="Contact Email">
-                        <MudTextField @bind-Value="@context.PrimaryContact.EmailAddress" Required />
-                    </MudTd>
-                    <MudTd DataLabel="Status">
-                        <MudTextField @bind-Value="@context.PrimaryContact.EmailAddress" Required />
-                    </MudTd>
-                </RowEditingTemplate>
-            </MudTable>  
-            <MudButton ButtonType="ButtonType.Button" @onclick='() => AddSupplier()'> Add Supplier</MudButton>
-
-        </MudPaper>
-    </MudItem>*@
-
      <MudItem xs="12">
-        <MudPaper Class="pa-4">
+       
             <h3>Selected Suppliers</h3>
             <MudTable Items="model.Invitations" Dense="true" Hover="true"
               @bind-SelectedItem="SelectedInvitation" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
@@ -124,7 +95,7 @@
             </MudTable>  
             <MudButton ButtonType="ButtonType.Button" @onclick='() => AddSupplier()'> Add Supplier</MudButton>
 
-        </MudPaper>
+      
     </MudItem>
 
 
@@ -145,13 +116,14 @@
                     <MudTh>Is Mandatory</MudTh>
                 </HeaderContent>
                 <RowTemplate>
-                    <MudTd DataLabel="Id">@context.QuestionId</MudTd>
+                        <MudTd DataLabel="Id">@context.Id</MudTd>
                     <MudTd DataLabel="Question">@context.QuestionLabel</MudTd>
                      <MudTd DataLabel="Category">@context.Category</MudTd>
                     <MudTd DataLabel="Type">@context.AnswerTypeEnum </MudTd>
                     <MudTd DataLabel="Is Mandatory">@context.IsMandatory</MudTd>
                 </RowTemplate>
-            </MudTable>  
+            </MudTable>
+                <MudButton ButtonType="ButtonType.Button" @onclick='() => AddQuestionaire("General")'> Add Questionaire</MudButton>
             <MudButton ButtonType="ButtonType.Button" @onclick='() => AddQuestion("General")'> Add Question</MudButton>
             <MudButton ButtonType="ButtonType.Button" @onclick='() => AddQuestion("Assessment")'> Add AssessmentQuestion</MudButton>
         </MudPaper>
@@ -166,7 +138,16 @@
     </MudItem>
 
 </MudGrid>
+    <style>
+        .column {
+            display: flex;
+            flex-direction: column;
+        }
 
+        .paper {
+            flex-grow: 1;
+        }
+    </style>
 
 
 
@@ -175,14 +156,14 @@
     MudForm form = default!;
     private MudTable<BlazorShared.Models.QuestionDto> _table = default!;
     private MudTable<BlazorShared.Models.SupplierDto> _tableSuppliers = default!;
-    private MudTable<BlazorShared.Models.InvitationDto> _tableInvitations = default!;
+    private MudTable<BlazorShared.Models.SupplierQuestionaireDto> _tableInvitations = default!;
 
     private MudButton _saveButton = default!;
     public EventDto model { get; set; } = new EventDto();
 
     public BlazorShared.Models.QuestionDto SelectedQuestion { get; set; } = new();
     public BlazorShared.Models.SupplierDto SelectedSupplier { get; set; } = new();
-    public BlazorShared.Models.InvitationDto SelectedInvitation { get; set; } = new();
+    public BlazorShared.Models.SupplierQuestionaireDto SelectedInvitation { get; set; } = new();
     [Inject]
     private ISender _mediator { get; set; } = default!;
     [Parameter]
@@ -218,6 +199,26 @@
 
 
 
+    }
+
+
+    public async void AddQuestionaire(string questionType)
+    {
+        var questionaireModel = new BlazorShared.Models.QuestionaireDto();
+
+        var parameters = new DialogParameters
+            {
+                   // { "model",questionaireModel },
+            };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraLarge, FullWidth = true };
+        var dialog = DialogService.Show<Detail>(string.Format("Add Question"), parameters, options);
+        var state = await dialog.Result;
+        if (!state.Cancelled)
+        {
+
+            await _table.ReloadServerData();
+            Snackbar.Add($"{ToastText.CREATESUCCESS}", MudBlazor.Severity.Info);
+        }
     }
 
 
@@ -262,7 +263,7 @@
             //model.Suppliers.AddRange(suppliersModel);
             foreach (var supplier in suppliersModel)
             {
-                model.Invitations.Add(new InvitationDto() {Supplier = supplier });
+               // model.Invitations.Add(new SupplierQuestionaireDto() {Supplier = supplier });
             }
             await  _table.ReloadServerData();
             Snackbar.Add($"{ToastText.CREATESUCCESS}", MudBlazor.Severity.Info);
@@ -278,12 +279,12 @@
     }
 
 
-    public void OnAssessResponse(InvitationDto invitation)
+    public void OnAssessResponse(SupplierQuestionaireDto invitation)
     {
         _navigationManager.NavigateTo($"/response/assessment/{invitation.Id}");
     }
 
-    public void OnViewResponse(InvitationDto invitation)
+    public void OnViewResponse(SupplierQuestionaireDto invitation)
     {
         _navigationManager.NavigateTo($"/response/edit/{invitation.Id}");
     }

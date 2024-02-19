@@ -17,6 +17,8 @@ public class ProjectDto : IMapFrom<Project>
     public string ProjectCode { get; set; }
     public string Description { get; set; }
 
+    public StatusEnum Status { get; set; }
+
     public List<EventDto> Events { get; set; } = new List<EventDto>();
 
 
