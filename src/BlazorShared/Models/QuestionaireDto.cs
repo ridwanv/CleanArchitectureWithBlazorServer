@@ -16,6 +16,9 @@ public class QuestionaireDto :IMapFrom<Questionaire>
     public Guid Id { get; set; } = Guid.NewGuid();
 
     public QuestionaireType QuestionaireType { get; set; }
+
+    public Guid? EventId { get; set; }
+    public string Event { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
     public DateTime CreatedDate { get; set; } = DateTime.Now;
@@ -57,9 +60,15 @@ public class QuestionaireDto :IMapFrom<Questionaire>
         }
     }
 
+    public QuestionaireDto(Guid? eventId=null)
+    {
+
+        Sections = new List<SectionDto>() { new SectionDto() { SectionName = "Default" } };   
+    }
+
     public QuestionaireDto()
     {
-        Sections = new List<SectionDto>() { new SectionDto() { SectionName = "Default" } };   
+        Sections = new List<SectionDto>() { new SectionDto() { SectionName = "Default" } };
     }
 
 }

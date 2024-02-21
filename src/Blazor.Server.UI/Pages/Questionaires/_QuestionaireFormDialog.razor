@@ -1,3 +1,4 @@
+@using BlazorShared.Models
 @using CleanArchitecture.Blazor.Application.Features.Customers.Commands.AddEdit
 
 @inherits MudComponentBase
@@ -7,18 +8,72 @@
     <DialogContent>
         <MudForm Model="@model" @ref="@_form">
             <MudGrid>
-                @*TODO: define mudform that should be edit fields, for example:*@
                 <MudItem xs="12">
                     <MudTextField Label="Name" @bind-Value="model.Name" For="@(() => model.Name)" Required="true" RequiredError="@L["name is required!"]"></MudTextField>
                 </MudItem> 
                  <MudItem xs="12">
                     <MudTextField Label="Description" @bind-Value="model.Description" For="@(() => model.Description)" Required="true" RequiredError="@L["name is required!"]"></MudTextField>
                 </MudItem> 
-                <MudItem xs="12"> 
-                        <MudTextField Label="Position" Lines="3" For="@(() => model.Description)" @bind-Value="model.Description"></MudTextField>
-                </MudItem> 
+
+                @if(model.EventId.HasValue)
+                {
+                    <MudItem xs="12">
+                        <MudTextField Label="Description" @bind-Value="model.EventId" For="@(() => model.EventId)" ReadOnly="true" Required="true" RequiredError="@L["name is required!"]"></MudTextField>
+                    </MudItem>
+                }
             </MudGrid>
         </MudForm>
+       <MudDynamicTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" AddTab="@AddSection">
+            <ChildContent>
+                @foreach (var item in model.Sections)
+                {
+                    <MudTabPanel Text="@item.SectionName">
+
+                        <MudPaper Class="pa-4">
+                            <h3>Questions</h3>
+                            <MudTable Items="item.Questions" Dense="true" Hover="true"
+                                      @bind-SelectedItem="SelectedQuestion" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
+                                      OnCommitEditClick="@(() => Snackbar.Add("Commit Edit Handler Invoked"))" @ref="_questionaireTable"
+                                      IsEditRowSwitchingBlocked="true">
+
+                                <HeaderContent>
+                                    <MudTh>..</MudTh>
+                                    <MudTh>Question</MudTh>
+                                    <MudTh>Category</MudTh>
+                                    <MudTh>Type</MudTh>
+                                    <MudTh>Is Mandatory</MudTh>
+                                </HeaderContent>
+                                <RowTemplate>
+                                    <MudTd DataLabel="Id">
+
+                                        <MudMenu Label="..." Variant="Variant.Filled" DisableElevation="true" Size="Size.Small"
+                                                 Dense="true"
+                                                 EndIcon="@Icons.Filled.KeyboardArrowDown" IconColor="Color.Info">
+                                            <MudMenuItem OnClick="@(()=>EditQuestion(context))">@ButtonText.EDIT</MudMenuItem>
+                                            </MudMenu>
+
+
+
+                                        </MudTd>
+                                        <MudTd DataLabel="Question">@context.QuestionLabel</MudTd>
+                                        <MudTd DataLabel="Category">@context.Category</MudTd>
+                                        <MudTd DataLabel="Type">@context.AnswerTypeEnum </MudTd>
+                                        <MudTd DataLabel="Is Mandatory">@context.IsMandatory</MudTd>
+                                    </RowTemplate>
+                                </MudTable>
+                                <MudButton ButtonType="ButtonType.Button" @onclick='() => AddQuestion("General", item.Id)'> Add Question</MudButton>
+                                <MudButton ButtonType="ButtonType.Button" @onclick='() => AddQuestion("Assessment", item.Id)'> Add AssessmentQuestion</MudButton>
+                            </MudPaper>
+
+
+
+                        </MudTabPanel>
+                }
+            </ChildContent>
+
+
+     </MudDynamicTabs>
+
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">@ButtonText.CANCEL</MudButton>
@@ -26,18 +81,24 @@
     </DialogActions>
 </MudDialog>
 
-@code {
+    @code {
+
+
     MudForm? _form;
+    public BlazorShared.Models.QuestionDto SelectedQuestion { get; set; } = new();
+
     [CascadingParameter]
     MudDialogInstance MudDialog { get; set; } = default!;
 
+    private MudTable<BlazorShared.Models.QuestionDto> _questionaireTable = default!;
 
 
     [EditorRequired][Parameter] public BlazorShared.Models.QuestionaireDto model { get; set; } = null!;
 
     async Task Submit()
     {
-        if(_form is not null) {
+        if (_form is not null)
+        {
 
             await _form.Validate();
             if (_form.IsValid)
@@ -46,5 +107,69 @@
             }
         }
     }
+
+    public async Task AddSection()
+    {
+        var sectionModel = new SectionDto();
+        var parameters = new DialogParameters
+                    {
+                           { nameof(_SectionFormDialog.model),sectionModel },
+                    };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var dialog = DialogService.Show<_SectionFormDialog>(string.Format("Add Section"), parameters, options);
+        var state = await dialog.Result;
+        if (!state.Cancelled)
+        {
+            sectionModel = (SectionDto)state.Data;
+            model.Sections.Add(sectionModel);
+            // model.Questionaire.AddQuestion(questionModel);
+            await  _questionaireTable.ReloadServerData();
+            StateHasChanged();
+            Snackbar.Add($"{ToastText.CREATESUCCESS}", MudBlazor.Severity.Info);
+        }
+    }
+
+    private async Task EditQuestion(BlazorShared.Models.QuestionDto questionModel)
+    {
+
+        var parameters = new DialogParameters
+                    {
+                           { nameof(_QuestionFormDialog.model),questionModel },
+                    };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var dialog = DialogService.Show<_QuestionFormDialog>(string.Format("Edit Question"), parameters, options);
+        var state = await dialog.Result;
+        if (!state.Cancelled)
+        {
+            questionModel = (QuestionDto)state.Data;
+            // model.Questionaire.AddQuestion(questionModel);
+            await _questionaireTable.ReloadServerData();
+            Snackbar.Add($"{ToastText.CREATESUCCESS}", MudBlazor.Severity.Info);
+        }
+    }
+
+    public async void AddQuestion(string questionType, Guid sectionId)
+    {
+        var questionModel = new BlazorShared.Models.QuestionDto();
+        if (questionType == "Assessment")
+            questionModel = new AssessmentQuestionDto();
+
+        var parameters = new DialogParameters
+                    {
+                           { nameof(_QuestionFormDialog.model),questionModel },
+                    };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var dialog = DialogService.Show<_QuestionFormDialog>(string.Format("Add Question"), parameters, options);
+        var state = await dialog.Result;
+        if (!state.Cancelled)
+        {
+            questionModel = (QuestionDto)state.Data;
+            model.Sections.FirstOrDefault(x => x.Id == sectionId).Questions.Add(questionModel);
+            // model.Questionaire.AddQuestion(questionModel);
+            await _questionaireTable.ReloadServerData();
+            Snackbar.Add($"{ToastText.CREATESUCCESS}", MudBlazor.Severity.Info);
+        }
+        }
+
     void Cancel() => MudDialog.Cancel();
 }

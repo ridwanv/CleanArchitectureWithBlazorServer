@@ -104,29 +104,29 @@
      <MudItem xs="12">
         <MudPaper Class="pa-4">
             <h3>Questions</h3>
-            <MudTable Items="model.Questionaires" Dense="true" Hover="true"
-              @bind-SelectedItem="SelectedQuestionaire" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
+            <MudTable Items="model.Questionaire.Questions" Dense="true" Hover="true"
+              @bind-SelectedItem="SelectedQuestion" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
               OnCommitEditClick="@(() => Snackbar.Add("Commit Edit Handler Invoked"))" @ref="_table"
                IsEditRowSwitchingBlocked="true">
 
                 <HeaderContent>
                     <MudTh>Id</MudTh>
-                    <MudTh>Name</MudTh>
-                    <MudTh>Description</MudTh>
-                    <MudTh>Number of Questions</MudTh>
-
+                    <MudTh>Question</MudTh>
+                    <MudTh>Category</MudTh>
+                    <MudTh>Type</MudTh>
+                    <MudTh>Is Mandatory</MudTh>
                 </HeaderContent>
                 <RowTemplate>
                         <MudTd DataLabel="Id">@context.Id</MudTd>
-                    <MudTd DataLabel="Question">@context.Name</MudTd>
-                     <MudTd DataLabel="Category">@context.Description</MudTd>
-                    <MudTd DataLabel="Type">@context.Questions.Count() </MudTd>
-
+                    <MudTd DataLabel="Question">@context.QuestionLabel</MudTd>
+                     <MudTd DataLabel="Category">@context.Category</MudTd>
+                    <MudTd DataLabel="Type">@context.AnswerTypeEnum </MudTd>
+                    <MudTd DataLabel="Is Mandatory">@context.IsMandatory</MudTd>
                 </RowTemplate>
             </MudTable>
                 <MudButton ButtonType="ButtonType.Button" @onclick='() => AddQuestionaire()'> Add Questionaire</MudButton>
-@*             <MudButton ButtonType="ButtonType.Button" @onclick='() => AddQuestion("General")'> Add Question</MudButton>
-            <MudButton ButtonType="ButtonType.Button" @onclick='() => AddQuestion("Assessment")'> Add AssessmentQuestion</MudButton> *@
+            <MudButton ButtonType="ButtonType.Button" @onclick='() => AddQuestion("General")'> Add Question</MudButton>
+            <MudButton ButtonType="ButtonType.Button" @onclick='() => AddQuestion("Assessment")'> Add AssessmentQuestion</MudButton>
         </MudPaper>
     </MudItem>
 
@@ -155,15 +155,12 @@
 @code 
     {
     MudForm form = default!;
-    private MudTable<BlazorShared.Models.QuestionaireDto> _table = default!;
+    private MudTable<BlazorShared.Models.QuestionDto> _table = default!;
     private MudTable<BlazorShared.Models.SupplierDto> _tableSuppliers = default!;
     private MudTable<BlazorShared.Models.SupplierQuestionaireDto> _tableInvitations = default!;
 
     private MudButton _saveButton = default!;
     public EventDto model { get; set; } = new EventDto();
-
-    
-    public BlazorShared.Models.QuestionaireDto SelectedQuestionaire { get; set; } = new();
 
     public BlazorShared.Models.QuestionDto SelectedQuestion { get; set; } = new();
     public BlazorShared.Models.SupplierDto SelectedSupplier { get; set; } = new();
@@ -291,11 +288,9 @@
             //model.Suppliers.AddRange(suppliersModel);
             foreach (var supplier in suppliersModel)
             {
-          @*       model.SelectedSuppliers.Add(supplier); *@
-                 model.Invitations.Add(new SupplierQuestionaireDto() {Supplier = supplier });
+               // model.Invitations.Add(new SupplierQuestionaireDto() {Supplier = supplier });
             }
-            StateHasChanged();
-            await _tableInvitations.ReloadServerData();
+            await  _table.ReloadServerData();
             Snackbar.Add($"{ToastText.CREATESUCCESS}", MudBlazor.Severity.Info);
         }
     }

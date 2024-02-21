@@ -137,7 +137,7 @@ public class EventService : IEventService
         var eve = await Retrieve(eventRequest.Id);
         eve.StartDate = eventRequest.StartDate;
         eve.EndDate = eventRequest.EndDate;
-        eve.Suppliers = eventRequest.Suppliers;
+        //eve.Suppliers = eventRequest.Suppliers;
         eve.Invitations = eventRequest.Invitations;
         eve.Questionaire = eventRequest.Questionaire;
 
@@ -150,7 +150,7 @@ public class EventService : IEventService
                 foreach (var invite in eventRequest.Invitations)
                 {
                     invite.InvitationStatus = CleanArchitecture.Blazor.Domain.Enums.InvitationStatusEnum.Accepted;
-                    //invite.Questionaire = eventRequest.Questionaire;
+                    invite.Questionaire = eventRequest.Questionaire;
                     cacheKey = $"invitation:{invite.Id}";
                     _provider.Set<Models.SupplierQuestionaireDto>(cacheKey, invite, new TimeSpan(1, 0, 0));
                     await _publisher.Publish(new CreatedEvent<SupplierQuestionaireDto>(invite));

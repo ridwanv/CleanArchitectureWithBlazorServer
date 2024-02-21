@@ -50,7 +50,7 @@
                                    Size="Size.Small"
                                    OnClick="@(()=>AddProject())"
                                    Style="margin-right: 4px; margin-bottom:4px"
-                                   IconColor="Color.Surface">@L["Add Project"]</MudButton>
+                                   IconColor="Color.Surface">@L["Add Questionaire"]</MudButton>
 
 
                         }
@@ -183,26 +183,26 @@
     }
     private async Task AddProject()
     {
-        var q = await _questionaireService.Get(Guid.NewGuid());
-        var s = await _questionaireService.Create(q);
-        // var model = new QuestionaireDto();
-        // var parameters = new DialogParameters { ["model"] = new QuestionaireDto() };
-        // var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true,Position = DialogPosition.Center };
-        // var dialog = DialogService.Show<_QuestionaireFormDialog>(L["Create a new questionaire"], parameters, options);
-        // var result = await dialog.Result;
-        // var projectRequest = (QuestionaireDto)result.Data;
-        // if (!result.Cancelled)
-        // {
-        //    // _questionaireService.Create(projectRequest);
-        //     _table.ReloadServerData();
-        //     Snackbar.Add($" Created {projectRequest.Name}", MudBlazor.Severity.Info);
+        // var q = await _questionaireService.Get(Guid.NewGuid());
+        // var s = await _questionaireService.Create(q);
+        var model = new QuestionaireDto();
+        var parameters = new DialogParameters { ["model"] = new QuestionaireDto() };
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraExtraLarge, FullWidth = true,Position = DialogPosition.Center, CloseButton=true };
+        var dialog = DialogService.Show<_QuestionaireFormDialog>(L["Create a new questionaire"], parameters, options);
+        var result = await dialog.Result;
+        var projectRequest = (QuestionaireDto)result.Data;
+        if (!result.Cancelled)
+        {
+           // _questionaireService.Create(projectRequest);
+            _table.ReloadServerData();
+            Snackbar.Add($" Created {projectRequest.Name}", MudBlazor.Severity.Info);
         
-        //     //_navigationManager.NavigateTo($"/suppliers/{(supplierRequest.Id}");
-        // }
-        // else
-        // {
-        //     Snackbar.Add($"{L["Failed"]}", MudBlazor.Severity.Info);
-        // }
+            //_navigationManager.NavigateTo($"/suppliers/{(supplierRequest.Id}");
+        }
+        else
+        {
+            Snackbar.Add($"{L["Failed"]}", MudBlazor.Severity.Info);
+        }
     }
 
     private async Task OnView(QuestionaireDto questionaire)

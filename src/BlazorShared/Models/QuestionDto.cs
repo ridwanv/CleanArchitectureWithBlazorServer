@@ -39,7 +39,7 @@ public class QuestionDto:IMapFrom<Question>
 
     public QuestionDto()
     {
-            
+        AnswerType = new ShortTextDto();
     }
 
     public AnswerFormat MapVehicle(AnswerFormatDto answerFormatDto)

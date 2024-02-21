@@ -1,0 +1,55 @@
+﻿@using CleanArchitecture.Blazor.Application.Features.Customers.Commands.AddEdit
+
+@inherits MudComponentBase
+@inject IStringLocalizer<BlazorShared.Models.QuestionDto> L
+@using BlazorShared.Models;
+<MudDialog>
+    <DialogContent>
+        <MudForm Model="@model" @ref="@_form">
+            <MudGrid>
+
+                <MudItem xs="12">
+                    <MudTextField Label="Section Name" @bind-Value="model.SectionName" For="@(() => model.SectionName)" Required="true" RequiredError="@L["name is required!"]"></MudTextField>
+                </MudItem> 
+              
+
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">@ButtonText.CANCEL</MudButton>
+        <MudButton Color="MudBlazor.Color.Primary" OnClick="Submit">@ButtonText.OK</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    MudForm? _form;
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; } = default!;
+
+    private bool showTechnicalQuestionOptions; 
+    private bool showEvaluationOptions = false;
+    private bool showMultipleChoiceOptions=false;
+    private int multipleChoiceOptionCount = 0;
+
+
+
+
+
+    [EditorRequired] [Parameter] public BlazorShared.Models.SectionDto model { get; set; } = null!;
+
+    
+
+    async Task Submit()
+    {
+        if(_form is not null) {
+            await _form.Validate();
+            if (_form.IsValid)
+            {
+               
+                MudDialog.Close(DialogResult.Ok(model));
+            }
+        }
+    }
+    void Cancel() => MudDialog.Cancel();
+}

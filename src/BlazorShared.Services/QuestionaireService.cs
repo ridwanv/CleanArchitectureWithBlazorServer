@@ -33,8 +33,13 @@ public class QuestionaireService: IQuestionaireService
 
     public async Task<QuestionaireDto> Get(Guid questionaireId)
     {
-        //var entityQuestionaires =  _context.Questionaires.Include(x=>x.Sections).Where(x => x.Id == questionaireId).FirstOrDefault();
-        //var domainQuestionaire = _mapper.Map<QuestionaireDto>(entityQuestionaires);
+        var entityQuestionaires = _context.Questionaires.Include(x => x.Sections).ThenInclude(x=>x.Questions).Where(x => x.Id == questionaireId).FirstOrDefault();
+
+        if(entityQuestionaires!=null)
+        {
+            var domainQuestionaire = _mapper.Map<QuestionaireDto>(entityQuestionaires);
+            return domainQuestionaire;
+        }
         //return domainQuestionaire;
 
         return new QuestionaireDto() { Sections = GetSections(), Name="Test",Description = "Data privacy questionaire", QuestionaireType = QuestionaireType.GeneralSupplierQuestionaire };
@@ -101,12 +106,15 @@ QuestionAnswers.Add(new QuestionDto() { QuestionLabel = "The data centre hosting
 
     public async Task<List<QuestionaireDto>> Search(QuestionaireSearchRequest questionaireSearchRequest)
     {
+        var entityQuestionaires = _context.Questionaires.ToList();
+        var domainQuestionaires = _mapper.Map<List<QuestionaireDto>>(entityQuestionaires);
+        domainQuestionaires.Add(await Get(Guid.NewGuid()));
         //return await Get(Guid.NewGuid());
-        var s = new List<QuestionaireDto>
-        {
-            await Get(Guid.NewGuid())
-        };// { new QuestionaireDto() {Name="Popia Questionaire",Description="Used to assess the risk for data privacy"  }, new QuestionaireDto() {Name="Cloud Questionaire", Description="Used to assesss cloud risk" } };
-        return s;
+        //var s = new List<QuestionaireDto>
+        //{
+        //    await Get(Guid.NewGuid())
+        //};// { new QuestionaireDto() {Name="Popia Questionaire",Description="Used to assess the risk for data privacy"  }, new QuestionaireDto() {Name="Cloud Questionaire", Description="Used to assesss cloud risk" } };
+        return domainQuestionaires;
     }
 
     private List<QuestionDto> GetPersonalPreferenceQuestions()

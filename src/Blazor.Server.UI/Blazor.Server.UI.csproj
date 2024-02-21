@@ -11,8 +11,10 @@
   </PropertyGroup>
 
     <ItemGroup>
+      <Content Remove="Pages\Events\AddEdit - Copy.razor" />
       <Content Remove="Pages\Projects\AddEdit.razor" />
       <Content Remove="Pages\Questionaires\_QuestionaireFormDialog - Copy.razor" />
+      <Content Remove="Pages\Questionaires\_QuestionaireFormDialog1.razor" />
       <Content Remove="Pages\Suppliers\_SupplierRequestFormDialog.razor" />
       <Content Remove="Shared\SupplierQuestionaireLayout.razor" />
     </ItemGroup>
